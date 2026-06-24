@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D&D Kartenwerkzeug v11.1.1</title>
+<style>
+:root{--bg:#101114;--panel:#1b1d23;--panel2:#252832;--text:#f1f1f1;--muted:#a7adbb;--accent:#5ee1ff;--gold:#c99b4a;--danger:#ff6b6b;--good:#79f29b;--purple:#c084fc;--border:#353945;--shadow:rgba(0,0,0,.45)}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;min-height:0;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(94,225,255,.12),transparent 35%),radial-gradient(circle at bottom right,rgba(201,155,74,.11),transparent 30%),var(--bg);color:var(--text);padding:14px}
+.app{height:calc(100vh - 28px);min-height:0;width:100%;max-width:none;margin:0 auto;display:flex;flex-direction:column}
+header{flex:0 0 auto;margin-bottom:12px;padding:12px 18px;border:1px solid var(--border);background:linear-gradient(135deg,rgba(27,29,35,.95),rgba(37,40,50,.88));border-radius:18px;box-shadow:0 14px 35px var(--shadow)}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:16px}.header-top h1{margin:0;font-size:27px}
+.storage-status{flex:0 0 auto;white-space:nowrap;padding:7px 10px;border:1px solid var(--border);border-radius:999px;background:#12151b;color:var(--muted);font-size:12px}.storage-status.good{color:var(--good);border-color:rgba(121,242,155,.38)}.storage-status.bad{color:var(--danger);border-color:rgba(255,107,107,.38)}
+.grid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(340px,390px) minmax(0,1fr);gap:14px;align-items:stretch}
+.card{min-width:0;min-height:0;background:rgba(27,29,35,.95);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 12px 30px var(--shadow)}
+.tool-card{height:100%;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}.map-card{height:100%;display:flex;flex-direction:column}
+h2{margin:0 0 12px;font-size:20px;color:var(--accent)}h3{margin:18px 0 10px;font-size:16px;color:var(--gold)}
+label{display:block;color:var(--muted);margin-bottom:7px;font-size:14px}input,button,select,textarea{font:inherit}input,select,textarea{width:100%;padding:10px 11px;background:#111318;color:var(--text);border:1px solid var(--border);border-radius:12px;outline:none}textarea{resize:vertical;min-height:86px}input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(94,225,255,.15)}
+button{border:1px solid var(--border);border-radius:12px;padding:10px 12px;cursor:pointer;background:var(--panel2);color:var(--text)}button:hover{border-color:var(--accent);background:#2b3040}button:disabled{opacity:.52;cursor:not-allowed}.primary{background:linear-gradient(135deg,#217d91,#175563);border-color:rgba(94,225,255,.45)}.gold{background:linear-gradient(135deg,#7b5b22,#4b3513);border-color:rgba(201,155,74,.55)}.danger{background:#3b1d22;border-color:rgba(255,107,107,.45)}.purple{background:linear-gradient(135deg,#5b2b88,#341653);border-color:rgba(192,132,252,.55)}
+.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.full{margin-bottom:12px}.help{background:rgba(94,225,255,.08);border:1px solid rgba(94,225,255,.22);color:var(--muted);padding:10px;border-radius:12px;font-size:13px;line-height:1.45;margin-bottom:12px}.notice{color:var(--muted);font-size:13px;line-height:1.45;margin-top:10px}
+.statbox{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}.stat{background:#12151b;border:1px solid var(--border);border-radius:14px;padding:12px}.stat .label{color:var(--muted);font-size:12px;margin-bottom:4px}.stat .value{font-size:16px;font-weight:bold}.good{color:var(--good)}.bad{color:var(--danger)}.blue{color:var(--accent)}.gold-text{color:var(--gold)}.purple-text{color:var(--purple)}
+.map-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.map-heading h2{margin:0}.map-meta{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px}.mode,.zoom-badge,.map-name{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:#12151b;color:var(--muted);font-size:12px}.active-mode{color:var(--accent);border-color:rgba(94,225,255,.45)}.map-name{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-viewport{flex:1 1 auto;min-height:0;width:100%;position:relative;overflow:hidden;isolation:isolate;background:#0b0c10;border:1px solid var(--border);border-radius:16px;touch-action:none;user-select:none}.map-viewport.panning{cursor:grabbing}.map-viewport.panning canvas{cursor:grabbing!important}canvas{position:absolute;inset:0;display:block;width:100%;height:100%;background:#0b0c10;image-rendering:auto;cursor:crosshair}.empty-map{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:24px}.map-hint{position:absolute;left:12px;bottom:12px;z-index:2;max-width:min(670px,calc(100% - 24px));padding:8px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(11,12,16,.82);backdrop-filter:blur(8px);color:#d8dce6;font-size:12px;line-height:1.35;pointer-events:none}
+.poi-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.toggle{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;cursor:pointer}.toggle input{width:auto;margin:0;accent-color:var(--accent)}
+.poi-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}.poi-item{background:#12151b;border:1px solid var(--border);border-radius:12px;padding:10px}.poi-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.poi-title-wrap{display:flex;align-items:center;gap:8px;min-width:0}.poi-swatch{width:13px;height:13px;flex:0 0 auto;border-radius:50%;border:1px solid rgba(255,255,255,.4)}.poi-title{font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.poi-meta{font-size:12px;color:var(--muted);margin-top:4px;word-break:break-word}.poi-actions{display:flex;gap:6px}.poi-actions button{padding:6px 8px;border-radius:9px}
+.footer{flex:0 0 auto;margin-top:12px;color:var(--muted);font-size:12px;text-align:center}
+.modal-backdrop{position:fixed;z-index:20;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72)}.modal-backdrop.open{display:flex}.modal{width:min(500px,100%);max-height:min(780px,calc(100vh - 40px));overflow:auto;padding:20px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,#1c1f27,#12141a);box-shadow:0 22px 70px rgba(0,0,0,.65)}.modal h2{margin:0 0 10px}.modal p{margin:0;color:var(--muted);line-height:1.5}.modal-result{margin:14px 0;padding:13px;border:1px solid rgba(201,155,74,.4);border-radius:12px;background:rgba(201,155,74,.1);color:var(--gold);font-weight:bold}.modal .buttons{justify-content:flex-end;margin-top:16px}
+.color-picker{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:8px}.color-swatch{height:30px;min-width:0;padding:0;border-radius:9px;border:2px solid rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(0,0,0,.35)}.color-swatch.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(94,225,255,.55),inset 0 0 0 1px rgba(0,0,0,.35)}.modal-section{margin-top:14px}.modal-section label{margin-bottom:8px}.modal-help{margin-top:8px;font-size:12px;color:var(--muted)}
+@media(max-width:1050px){body{height:auto;min-height:100vh;overflow-x:hidden;overflow-y:auto;padding:10px}.app{height:auto;min-height:calc(100vh - 20px)}.header-top{display:block}.storage-status{display:inline-block;margin-top:10px}.grid{display:grid;grid-template-columns:1fr;flex:none}.tool-card{height:auto;overflow:visible}.map-card{height:auto}.map-viewport{height:620px;flex:none}.footer{margin-top:14px}}
+@media(max-width:620px){.row{grid-template-columns:1fr}.map-viewport{height:520px}.map-heading{align-items:flex-start;flex-direction:column}.map-meta{justify-content:flex-start}.map-name{max-width:calc(100vw - 60px)}.color-picker{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+/* v11: Kartenbibliothek in der Werkzeugleiste, damit die Karte ihren vollständigen Arbeitsbereich behält */
+button.tool-active{outline:2px solid rgba(255,255,255,.9);outline-offset:1px;box-shadow:0 0 0 4px rgba(94,225,255,.18);filter:brightness(1.16)}
+button.tool-active.primary{border-color:#8aefff;background:linear-gradient(135deg,#278da4,#1b6373)}
+button.tool-active.gold{border-color:#f0ca7a;background:linear-gradient(135deg,#8d6929,#5a4018)}
+button.tool-active.purple{border-color:#e0bbff;background:linear-gradient(135deg,#7040a3,#48206d)}
+.map-library{margin:0 0 12px;padding:10px;border:1px solid var(--border);border-radius:14px;background:rgba(18,21,27,.84)}
+.map-library-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.map-library-title{font-size:13px;color:var(--muted);font-weight:bold}.map-library-top button{padding:7px 9px;border-radius:9px;font-size:12px}
+.map-list{display:flex;flex-direction:column;gap:7px;max-height:220px;overflow-y:auto;overscroll-behavior:contain;padding-right:2px}.map-list-empty{padding:8px 4px;color:var(--muted);font-size:12px}
+.map-item{display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid var(--border);border-radius:10px;background:#12151b;cursor:pointer;transition:border-color .12s ease,background .12s ease}.map-item:hover{border-color:rgba(94,225,255,.55);background:#181c25}.map-item.active{border-color:rgba(94,225,255,.9);background:linear-gradient(90deg,rgba(94,225,255,.16),rgba(18,21,27,.96));box-shadow:inset 3px 0 0 var(--accent)}
+.map-item-main{flex:1 1 auto;min-width:0}.map-item-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:bold;font-size:13px}.map-item-meta{margin-top:2px;color:var(--muted);font-size:11px}.map-item-actions{display:flex;flex:0 0 auto;gap:4px}.map-item-actions button{min-width:26px;padding:4px 6px;border-radius:7px;font-size:12px}.map-item-actions .mini-danger{color:#ffd1d1;border-color:rgba(255,107,107,.45)}
+.confirm-details{margin:14px 0 0;padding:11px;border:1px solid rgba(255,107,107,.28);border-radius:12px;background:rgba(255,107,107,.07);color:#e4e8f0;font-size:13px;line-height:1.45}.confirm-details strong{color:#fff}.delete-list{max-height:180px;overflow:auto;margin:8px 0 0;padding-left:18px}.delete-list li{margin:3px 0}.confirm-warning{margin-top:10px;color:#ffc2c2;font-size:12px}.rename-modal .buttons{justify-content:flex-end}
+@media(max-width:620px){.map-library-top{align-items:flex-start;flex-direction:column}.map-item-actions{gap:3px}.map-item-actions button{padding:4px 5px}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="header-top">
+    <div>
+      <h1>D&D Kartenwerkzeug v11</h1>
+    </div>
+    <div id="storageStatus" class="storage-status">Speicher wird vorbereitet …</div>
+  </div>
+</header>
+
+<div class="grid">
+  <section class="card tool-card">
+    <h2>Werkzeug</h2>
+    <div class="help"><strong>Ablauf:</strong> Karte importieren → Maßstab mit zwei bekannten Punkten kalibrieren → gerade Strecke oder Route messen. Messpunkte lassen sich anklicken, verschieben und mit <strong>Entf</strong> löschen.</div>
+
+    <div class="map-library" aria-label="Kartenbibliothek">
+      <div class="map-library-top"><span class="map-library-title">Karten im Projekt</span><button id="mapAddButton" class="primary" type="button">+ Karte hinzufügen</button></div>
+      <div id="mapList" class="map-list"><div class="map-list-empty">Noch keine Karte im Projekt.</div></div>
+    </div>
+
+    <div class="full">
+      <label for="mapInput">Neue Karte zum Kartenprojekt hinzufügen</label>
+      <input id="mapInput" type="file" accept="image/*">
+      <div class="notice">Jede Karte erhält ihren eigenen Maßstab, eigene Messungen, Route, POIs und Kartenansicht. Alle Karten werden automatisch lokal in diesem Browser gespeichert.</div>
+    </div>
+
+    <h3>1. Maßstab kalibrieren</h3>
+    <div class="full"><label for="knownDistanceInput">Bekannte Entfernung zwischen zwei Punkten</label><input id="knownDistanceInput" type="number" min="0" step="0.1" value="10"></div>
+    <div class="full"><label for="distanceUnitInput">Einheit</label><select id="distanceUnitInput"><option value="km">Kilometer</option><option value="mi">Meilen</option><option value="ft">Fuß</option><option value="m">Meter</option></select></div>
+    <div class="buttons"><button id="startCalibrationButton" class="gold" type="button" aria-pressed="false">Maßstab kalibrieren</button><button id="clearCalibrationButton" type="button">Maßstab entfernen</button></div>
+    <div id="calibrationHint" class="notice">Wähle „Maßstab kalibrieren“ und setze anschließend Punkt K1 und K2 auf der Karte.</div>
+
+    <h3>2. Messen</h3>
+    <div class="buttons"><button id="measureModeButton" class="primary" type="button" aria-pressed="false">Gerade Strecke</button><button id="routeModeButton" class="primary" type="button" aria-pressed="false">Route</button></div>
+    <div class="notice">Das aktive Werkzeug ist farblich hervorgehoben. Klicke denselben Button erneut, um es zu beenden und frei auf die Karte zu klicken. Wegpunkte behalten unabhängig vom Zoom dieselbe sichtbare Größe.</div>
+
+    <h3>3. Points of Interest</h3>
+    <div class="buttons"><button id="poiModeButton" class="purple" type="button" aria-pressed="false">POI platzieren</button><button id="clearPoisButton" class="danger" type="button">Alle POIs löschen</button></div>
+    <div class="poi-toolbar"><label class="toggle" for="poiLabelToggle"><input id="poiLabelToggle" type="checkbox" checked> Namen auf Karte anzeigen</label></div>
+    <div class="notice">POI platzieren erneut anklicken beendet den Modus. POI anklicken: Notiz anzeigen · ziehen: verschieben · doppelklicken: bearbeiten.</div>
+    <div class="poi-list" id="poiList"></div>
+
+    <h3>4. Projekt sichern / teilen</h3>
+    <div class="buttons"><button id="exportDmButton" class="gold" type="button">DM-Backup exportieren</button><button id="exportPlayerButton" class="primary" type="button">Spielerversion exportieren</button><button id="importProjectButton" type="button">Projekt importieren</button><input id="projectImportInput" type="file" accept=".dndmap.json,.json,application/json" hidden></div>
+    <div class="notice">Beide Exporte enthalten alle Karten, Maßstäbe, Messungen, Routen, POIs und Kartenansichten. Die Spielerversion lässt ausschließlich die POI-Notizen weg.</div>
+
+    <div class="statbox">
+      <div class="stat"><div class="label">Aktiver Modus</div><div class="value" id="modeText">Kein Modus</div></div>
+      <div class="stat"><div class="label">Maßstab</div><div class="value" id="scaleText">Nicht kalibriert</div></div>
+      <div class="stat"><div class="label">Gerade Strecke</div><div class="value" id="measureText">Noch keine Messung</div></div>
+      <div class="stat"><div class="label">Route gesamt</div><div class="value" id="routeText">Noch keine Route</div></div>
+    </div>
+  </section>
+
+  <section class="card map-card">
+    <div class="map-heading">
+      <h2>Karte <span id="mapModeBadge" class="mode">bereit</span></h2>
+      <div class="map-meta"><span id="mapNameText" class="map-name">Keine Karte gespeichert</span><span id="zoomText" class="zoom-badge">100 %</span></div>
+    </div>
+    <div class="map-viewport" id="mapViewport">
+      <div class="empty-map" id="emptyMap"><div><strong>Noch keine Karte geladen.</strong><br><br>Importiere links ein Kartenbild. Es wird anschließend automatisch lokal gespeichert und beim nächsten Öffnen wiederhergestellt.</div></div>
+      <canvas id="mapCanvas" style="display:none"></canvas>
+      <div class="map-hint" id="mapHint">Mausrad: Zoom auf Mausposition · Mittlere Maustaste: Karte verschieben · <strong>F</strong>: Karte passend anzeigen</div>
+    </div>
+  </section>
+</div>
+
+<div class="footer">Lokales Ein-Datei-Tool. Kein Upload, kein Server, kein Account. Die Speicherung erfolgt über IndexedDB im verwendeten Browser.</div>
+</div>
+
+<div id="calibrationModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="calibrationModalTitle">
+  <div class="modal">
+    <h2 id="calibrationModalTitle">Maßstab kalibriert</h2>
+    <p>Beide Kalibrierungspunkte sind gesetzt. Nach „Übernehmen“ verschwinden sie wieder, damit die Karte sauber bleibt. Über „Punkte anpassen“ kannst du sie jederzeit erneut einblenden.</p>
+    <div id="calibrationModalResult" class="modal-result"></div>
+    <div class="buttons"><button id="adjustCalibrationButton" type="button">Punkte anpassen</button><button id="restartCalibrationButton" type="button">Neu setzen</button><button id="confirmCalibrationButton" class="gold" type="button">Übernehmen</button></div>
+  </div>
+</div>
+
+<div id="poiModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="poiModalTitle">
+  <div class="modal">
+    <h2 id="poiModalTitle">POI bearbeiten</h2>
+    <div class="modal-section"><label for="poiModalName">Name</label><input id="poiModalName" type="text" maxlength="100" placeholder="z. B. Grünhain"></div>
+    <div class="modal-section"><label for="poiModalType">Typ / Symbol</label><select id="poiModalType"><option value="Stadt">Stadt</option><option value="Dorf">Dorf</option><option value="Ruine">Ruine</option><option value="Dungeon">Dungeon</option><option value="Quest-Ort">Quest-Ort</option><option value="Lager">Lager</option><option value="Sonstiges">Sonstiges</option></select></div>
+    <div class="modal-section"><label>Farbe</label><div id="poiColorPicker" class="color-picker" aria-label="POI-Farbe auswählen"></div></div>
+    <div class="modal-section"><label for="poiModalNote">Notiz</label><textarea id="poiModalNote" maxlength="1000" placeholder="z. B. Händler, Quest-Hook, gefährliche Ruine …"></textarea></div>
+    <div class="modal-help">Auf der Karte: anklicken zeigt die Notiz, ziehen verschiebt den POI und doppelklicken öffnet diesen Editor.</div>
+    <div class="buttons"><button id="poiDeleteButton" class="danger" type="button">Löschen</button><button id="poiCancelButton" type="button">Abbrechen</button><button id="poiSaveButton" class="purple" type="button">Speichern</button></div>
+  </div>
+</div>
+
+
+<div id="confirmModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+  <div class="modal">
+    <h2 id="confirmModalTitle">Aktion bestätigen</h2>
+    <p id="confirmModalMessage"></p>
+    <div id="confirmModalDetails" class="confirm-details"></div>
+    <div class="buttons"><button id="confirmModalCancelButton" type="button">Abbrechen</button><button id="confirmModalActionButton" class="danger" type="button">Löschen</button></div>
+  </div>
+</div>
+
+<div id="renameMapModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="renameMapModalTitle">
+  <div class="modal rename-modal">
+    <h2 id="renameMapModalTitle">Karte umbenennen</h2>
+    <div class="modal-section"><label for="renameMapInput">Kartenname</label><input id="renameMapInput" type="text" maxlength="100" placeholder="z. B. Elturel und Umgebung"></div>
+    <div class="buttons"><button id="renameMapCancelButton" type="button">Abbrechen</button><button id="renameMapSaveButton" class="primary" type="button">Speichern</button></div>
+  </div>
+</div>
+
+<script>
+
+const canvas=document.getElementById('mapCanvas');
+const ctx=canvas.getContext('2d');
+const viewport=document.getElementById('mapViewport');
+const emptyMap=document.getElementById('emptyMap');
+const mapInput=document.getElementById('mapInput');
+const projectImportInput=document.getElementById('projectImportInput');
+
+const DB_NAME='DndKartenwerkzeugDB';
+const DB_VERSION=1;
+const STORE_NAME='workspace';
+const LIBRARY_KEY='map-library-v10';
+const LEGACY_KEY='active-map-workspace-v1';
+const POI_TYPES=['Stadt','Dorf','Ruine','Dungeon','Quest-Ort','Lager','Sonstiges'];
+const POI_COLORS=[
+  {name:'Türkis',value:'#5ee1ff'},{name:'Grün',value:'#79f29b'},{name:'Gold',value:'#c99b4a'},
+  {name:'Rot',value:'#ff6b6b'},{name:'Violett',value:'#c084fc'},{name:'Bernstein',value:'#f59e0b'},
+  {name:'Blau',value:'#60a5fa'},{name:'Pink',value:'#f472b6'},{name:'Rose',value:'#fb7185'},
+  {name:'Weiß',value:'#f1f1f1'}
+];
+
+let maps=[];
+let activeMapId=null;
+let mapImage=null;
+let mapBlob=null;
+let mapName='';
+let mode=null;
+let zoom=1;
+let pan={x:0,y:0};
+let calibrationPoints=[];
+let calibrationScale=null;
+let showCalibrationMarkers=false;
+let measurePoints=[];
+let routePoints=[];
+let pois=[];
+let selectedPoint=null;
+let pointerAction=null;
+let modalOpen=false;
+let dbPromise=null;
+let saveTimer=null;
+let storageAvailable=true;
+let editingPoiId=null;
+let poiModalIsNew=false;
+let poiDraftColor=POI_COLORS[0].value;
+let selectedPoiId=null;
+// Eigene Doppelklick-Erkennung: zuverlässig auch wenn der POI-Drag Pointer Capture nutzt.
+let lastPoiClick=null;
+let resizeObserver=null;
+let mapLoadToken=0;
+let pendingConfirmAction=null;
+let renamingMapId=null;
+
+function makeId(prefix='item'){return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`}
+function escapeHtml(value){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
+function clamp(value,min,max){return Math.min(max,Math.max(min,value))}
+function clonePoints(points){return (Array.isArray(points)?points:[]).map(p=>({x:Number(p.x),y:Number(p.y)})).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y))}
+function getKnownDistance(){return Number(document.getElementById('knownDistanceInput').value||0)}
+function getUnit(){return document.getElementById('distanceUnitInput').value||'km'}
+function showPoiLabels(){return document.getElementById('poiLabelToggle').checked}
+function formatDistance(value){if(!Number.isFinite(value))return '–';const rounded=Math.round(value*100)/100;return `${String(rounded).replace('.',',')} ${getUnit()}`}
+function distancePx(a,b){const dx=b.x-a.x,dy=b.y-a.y;return Math.hypot(dx,dy)}
+function recalcCalibration(){if(calibrationPoints.length!==2){calibrationScale=null;return}const px=distancePx(calibrationPoints[0],calibrationPoints[1]);const known=getKnownDistance();calibrationScale=known>0&&px>0?known/px:null}
+function worldBetween(a,b){return calibrationScale?distancePx(a,b)*calibrationScale:null}
+function routeWorld(points){if(!calibrationScale||points.length<2)return null;let total=0;for(let i=1;i<points.length;i++)total+=worldBetween(points[i-1],points[i]);return total}
+function setStorageStatus(text,type=''){const el=document.getElementById('storageStatus');el.textContent=text;el.className=`storage-status${type?` ${type}`:''}`}
+function worldSize(screenPixels){return screenPixels/Math.max(zoom,0.0001)}
+function getDevicePixelRatio(){return Math.min(window.devicePixelRatio||1,2)}
+function legacyPoiColor(type){return({Stadt:'#5ee1ff',Dorf:'#79f29b',Ruine:'#c99b4a',Dungeon:'#ff6b6b','Quest-Ort':'#c084fc',Lager:'#f59e0b',Sonstiges:'#f1f1f1'})[type]||POI_COLORS[0].value}
+function normalizePoi(raw,index=0){const type=POI_TYPES.includes(raw?.type)?raw.type:'Sonstiges';const color=POI_COLORS.some(c=>c.value===raw?.color)?raw.color:legacyPoiColor(type);return{id:String(raw?.id||makeId('poi')),name:String(raw?.name||`${type} ${index+1}`),type,note:String(raw?.note||''),color,x:Number(raw?.x),y:Number(raw?.y)}}
+function normalizeMapRecord(raw,index=0){
+  const name=String(raw?.name||raw?.mapName||`Karte ${index+1}`);
+  return {id:String(raw?.id||makeId('map')),name,mapBlob:raw?.mapBlob||null,knownDistance:Number.isFinite(Number(raw?.knownDistance))?Number(raw.knownDistance):10,unit:['km','mi','ft','m'].includes(raw?.unit)?raw.unit:'km',poiLabelVisibility:raw?.poiLabelVisibility==='hide'?'hide':'show',calibrationPoints:clonePoints(raw?.calibrationPoints).slice(0,2),measurePoints:clonePoints(raw?.measurePoints).slice(0,2),routePoints:clonePoints(raw?.routePoints),pois:(Array.isArray(raw?.pois)?raw.pois:[]).map(normalizePoi).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)),zoom:Number.isFinite(Number(raw?.zoom))?Number(raw.zoom):1,pan:{x:Number.isFinite(Number(raw?.pan?.x))?Number(raw.pan.x):0,y:Number.isFinite(Number(raw?.pan?.y))?Number(raw.pan.y):0},savedAt:Number(raw?.savedAt)||Date.now()};
+}
+function activeMap(){return maps.find(m=>m.id===activeMapId)||null}
+function setMapNameText(){document.getElementById('mapNameText').textContent=mapName||'Keine Karte ausgewählt'}
+function mapSummary(map){const poiCount=Array.isArray(map.pois)?map.pois.length:0;return `${poiCount} POI${poiCount===1?'':'s'} · ${map.calibrationPoints?.length===2?'kalibriert':'ohne Maßstab'}`}
+
+function openDatabase(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window)){reject(new Error('IndexedDB wird von diesem Browser nicht unterstützt.'));return}let request;try{request=indexedDB.open(DB_NAME,DB_VERSION)}catch(error){reject(error);return}request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME)};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('IndexedDB konnte nicht geöffnet werden.'))})}
+function getDatabase(){if(!dbPromise)dbPromise=openDatabase();return dbPromise}
+async function readRecord(key){const db=await getDatabase();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,'readonly');const request=tx.objectStore(STORE_NAME).get(key);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error||new Error('Gespeicherte Karten konnten nicht gelesen werden.'))})}
+async function writeRecord(key,state){const db=await getDatabase();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,'readwrite');tx.objectStore(STORE_NAME).put(state,key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||new Error('Karten konnten nicht gespeichert werden.'));tx.onabort=()=>reject(tx.error||new Error('Speichervorgang wurde abgebrochen.'))})}
+
+function syncActiveMap(){
+  const map=activeMap();if(!map)return;
+  map.mapBlob=mapBlob||map.mapBlob||null;
+  map.name=mapName||map.name||'Unbenannte Karte';
+  map.knownDistance=getKnownDistance();map.unit=getUnit();map.poiLabelVisibility=showPoiLabels()?'show':'hide';
+  map.calibrationPoints=clonePoints(calibrationPoints).slice(0,2);map.measurePoints=clonePoints(measurePoints).slice(0,2);map.routePoints=clonePoints(routePoints);
+  map.pois=pois.map((p,index)=>normalizePoi(p,index)).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
+  map.zoom=Number(zoom);map.pan={x:Number(pan.x),y:Number(pan.y)};map.savedAt=Date.now();
+}
+function libraryState(){syncActiveMap();return{version:11,activeMapId,maps:maps.map((map,index)=>{const normalized=normalizeMapRecord(map,index);return {...normalized,mapBlob:map.mapBlob||null}}),savedAt:Date.now()}}
+function scheduleSave(delay=300){if(!storageAvailable)return;clearTimeout(saveTimer);saveTimer=setTimeout(saveLibrary,delay)}
+async function saveLibrary(){if(!storageAvailable)return;try{syncActiveMap();setStorageStatus('Speichert …');await writeRecord(LIBRARY_KEY,libraryState());setStorageStatus('Lokal gespeichert','good')}catch(error){storageAvailable=false;setStorageStatus('Lokale Speicherung fehlgeschlagen','bad');console.error(error)}}
+
+function resizeCanvas(){const width=Math.max(1,viewport.clientWidth),height=Math.max(1,viewport.clientHeight),dpr=getDevicePixelRatio(),nextWidth=Math.round(width*dpr),nextHeight=Math.round(height*dpr);if(canvas.width!==nextWidth||canvas.height!==nextHeight){canvas.width=nextWidth;canvas.height=nextHeight;canvas.style.width=`${width}px`;canvas.style.height=`${height}px`}draw()}
+function applyCanvasTransform(){document.getElementById('zoomText').textContent=`${Math.round(zoom*100)} %`}
+function fitMapToViewport(){if(!mapImage)return;const padding=36,availableWidth=Math.max(1,viewport.clientWidth-padding*2),availableHeight=Math.max(1,viewport.clientHeight-padding*2);zoom=clamp(Math.min(availableWidth/mapImage.naturalWidth,availableHeight/mapImage.naturalHeight),0.05,6);pan.x=(viewport.clientWidth-(mapImage.naturalWidth*zoom))/2;pan.y=(viewport.clientHeight-(mapImage.naturalHeight*zoom))/2;applyCanvasTransform();draw();scheduleSave(0)}
+function zoomAt(clientX,clientY,nextZoom){if(!mapImage)return;const rect=viewport.getBoundingClientRect(),localX=clientX-rect.left,localY=clientY-rect.top,worldX=(localX-pan.x)/zoom,worldY=(localY-pan.y)/zoom;zoom=clamp(nextZoom,0.05,6);pan.x=localX-worldX*zoom;pan.y=localY-worldY*zoom;applyCanvasTransform();draw();scheduleSave()}
+function getWorldPoint(event){const rect=viewport.getBoundingClientRect();return{x:(event.clientX-rect.left-pan.x)/zoom,y:(event.clientY-rect.top-pan.y)/zoom}}
+function pointArrayForType(type){if(type==='calibrate')return calibrationPoints;if(type==='measure')return measurePoints;if(type==='route')return routePoints;return null}
+function findPointHit(point){if(!mode)return null;const points=pointArrayForType(mode);if(!points?.length)return null;const radius=worldSize(16);for(let i=points.length-1;i>=0;i--){if(distancePx(point,points[i])<=radius)return{type:mode,index:i}}return null}
+function findPoiHit(point){const radius=worldSize(20);for(let i=pois.length-1;i>=0;i--){if(distancePx(point,pois[i])<=radius)return pois[i]}return null}
+function isSelected(type,index){return selectedPoint&&selectedPoint.type===type&&selectedPoint.index===index}
+function isPoiSelected(p){return p&&p.id===selectedPoiId}
+function getModeName(){return({calibrate:'Kalibrierung',measure:'Gerade Strecke',route:'Route',poi:'POI platzieren'})[mode]||'Kein Modus'}
+function clearSelection(){selectedPoiId=null;selectedPoint=null}
+function updateModeButtons(){const pairs=[['startCalibrationButton','calibrate'],['measureModeButton','measure'],['routeModeButton','route'],['poiModeButton','poi']];pairs.forEach(([id,tool])=>{const btn=document.getElementById(id);const active=mode===tool;btn.classList.toggle('tool-active',active);btn.setAttribute('aria-pressed',String(active))})}
+function updateMapHint(){const el=document.getElementById('mapHint');let text='Mausrad: Zoom auf Mausposition · Mittlere Maustaste: Karte verschieben · <strong>F</strong>: Karte passend anzeigen · Freie Karte anklicken: Auswahl aufheben';if(mode==='calibrate')text=calibrationPoints.length===0?'Kalibrierung: Setze Punkt K1 auf der Karte. Klicke „Maßstab kalibrieren“ erneut, um abzuwählen.':calibrationPoints.length===1?'Kalibrierung: Setze Punkt K2 auf der Karte. Klicke „Maßstab kalibrieren“ erneut, um abzuwählen.':'Kalibrierung: K1 oder K2 anklicken und ziehen, um den Maßstab anzupassen.';if(mode==='measure')text='Gerade Strecke aktiv: Zwei Messpunkte setzen. Button erneut anklicken beendet das Werkzeug.';if(mode==='route')text='Route aktiv: Wegpunkte nacheinander setzen. Button erneut anklicken beendet das Werkzeug.';if(mode==='poi')text='POI platzieren aktiv: Klicke auf die gewünschte Position. Button erneut anklicken beendet das Werkzeug.';el.innerHTML=text}
+function updateStats(){recalcCalibration();const modeText=document.getElementById('modeText');modeText.innerHTML=mode?`<span class="blue">${getModeName()}</span>`:'<span class="bad">Kein Modus gewählt</span>';const badge=document.getElementById('mapModeBadge');badge.textContent=mode?getModeName():'frei';badge.className=mode?'mode active-mode':'mode';const scaleText=document.getElementById('scaleText');if(calibrationScale&&calibrationPoints.length===2){const px=distancePx(calibrationPoints[0],calibrationPoints[1]);scaleText.innerHTML=`<span class="good">Kalibriert</span><br><span class="notice">${formatDistance(getKnownDistance())} = ${Math.round(px)} px</span>`}else scaleText.innerHTML='<span class="bad">Nicht kalibriert</span>';const measureText=document.getElementById('measureText');if(measurePoints.length===2&&calibrationScale)measureText.innerHTML=`<span class="blue">${formatDistance(worldBetween(measurePoints[0],measurePoints[1]))}</span>`;else if(measurePoints.length===2)measureText.innerHTML='<span class="bad">Erst Maßstab kalibrieren</span>';else measureText.textContent='Noch keine Messung';const routeText=document.getElementById('routeText');if(routePoints.length>=2&&calibrationScale)routeText.innerHTML=`<span class="good">${formatDistance(routeWorld(routePoints))}</span>`;else if(routePoints.length>=2)routeText.innerHTML='<span class="bad">Erst Maßstab kalibrieren</span>';else routeText.textContent='Noch keine Route';document.getElementById('clearCalibrationButton').disabled=calibrationPoints.length===0;setMapNameText();updateModeButtons();updateMapHint()}
+
+function drawPoint(point,color,label,type,index){const selected=isSelected(type,index),r=worldSize(7);ctx.save();if(selected){ctx.strokeStyle='#fff';ctx.lineWidth=worldSize(4);ctx.beginPath();ctx.arc(point.x,point.y,worldSize(14),0,Math.PI*2);ctx.stroke();ctx.strokeStyle=color;ctx.lineWidth=worldSize(3);ctx.beginPath();ctx.arc(point.x,point.y,worldSize(18),0,Math.PI*2);ctx.stroke()}ctx.fillStyle=color;ctx.strokeStyle='#000';ctx.lineWidth=worldSize(3);ctx.beginPath();ctx.arc(point.x,point.y,r,0,Math.PI*2);ctx.fill();ctx.stroke();if(label){ctx.font=`bold ${worldSize(18)}px Arial`;ctx.lineWidth=worldSize(4);ctx.strokeStyle='#000';ctx.fillStyle=color;ctx.strokeText(label,point.x+worldSize(10),point.y-worldSize(10));ctx.fillText(label,point.x+worldSize(10),point.y-worldSize(10))}ctx.restore()}
+function drawLine(a,b,color,width=4){ctx.save();ctx.strokeStyle=color;ctx.lineWidth=worldSize(width);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
+function drawLabel(text,x,y,color){ctx.save();ctx.font=`bold ${worldSize(18)}px Arial`;ctx.lineWidth=worldSize(5);ctx.strokeStyle='#000';ctx.fillStyle=color;ctx.strokeText(text,x,y);ctx.fillText(text,x,y);ctx.restore()}
+function drawStar(cx,cy,outer,inner){ctx.beginPath();for(let i=0;i<10;i++){const angle=-Math.PI/2+i*Math.PI/5,r=i%2===0?outer:inner,x=cx+Math.cos(angle)*r,y=cy+Math.sin(angle)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath()}
+function drawPoiSymbol(p){const s=worldSize(12),line=worldSize(2.25),color=p.color||legacyPoiColor(p.type),selected=isPoiSelected(p);ctx.save();ctx.translate(p.x,p.y);if(selected){ctx.strokeStyle='#fff';ctx.lineWidth=worldSize(3.4);ctx.beginPath();ctx.arc(0,0,worldSize(19),0,Math.PI*2);ctx.stroke();ctx.strokeStyle=color;ctx.lineWidth=worldSize(2.4);ctx.beginPath();ctx.arc(0,0,worldSize(22),0,Math.PI*2);ctx.stroke()}ctx.fillStyle='rgba(10,12,16,.88)';ctx.strokeStyle='#000';ctx.lineWidth=worldSize(3);ctx.beginPath();ctx.arc(0,0,worldSize(14),0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=line;ctx.lineJoin='round';ctx.lineCap='round';if(p.type==='Stadt'){ctx.beginPath();ctx.moveTo(-s*.72,s*.62);ctx.lineTo(-s*.72,-s*.58);ctx.lineTo(-s*.43,-s*.58);ctx.lineTo(-s*.43,-s*.84);ctx.lineTo(-s*.15,-s*.84);ctx.lineTo(-s*.15,-s*.58);ctx.lineTo(s*.15,-s*.58);ctx.lineTo(s*.15,-s*.84);ctx.lineTo(s*.43,-s*.84);ctx.lineTo(s*.43,-s*.58);ctx.lineTo(s*.72,-s*.58);ctx.lineTo(s*.72,s*.62);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.arc(0,s*.62,s*.24,Math.PI,0);ctx.stroke()}else if(p.type==='Dorf'){ctx.beginPath();ctx.moveTo(-s*.8,s*.62);ctx.lineTo(-s*.8,-s*.06);ctx.lineTo(0,-s*.78);ctx.lineTo(s*.8,-s*.06);ctx.lineTo(s*.8,s*.62);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(-s*.98,-s*.03);ctx.lineTo(0,-s*.94);ctx.lineTo(s*.98,-s*.03);ctx.stroke();ctx.beginPath();ctx.moveTo(s*.3,-s*.58);ctx.lineTo(s*.3,-s*.98);ctx.stroke()}else if(p.type==='Ruine'){ctx.beginPath();ctx.moveTo(-s*.8,s*.65);ctx.lineTo(-s*.58,s*.65);ctx.lineTo(-s*.58,-s*.66);ctx.lineTo(-s*.28,-s*.66);ctx.lineTo(-s*.28,s*.22);ctx.lineTo(0,s*.22);ctx.lineTo(0,-s*.26);ctx.lineTo(s*.22,-s*.26);ctx.lineTo(s*.22,-s*.84);ctx.lineTo(s*.58,-s*.84);ctx.lineTo(s*.58,s*.65);ctx.lineTo(s*.84,s*.65);ctx.stroke();ctx.beginPath();ctx.moveTo(-s*.95,s*.65);ctx.lineTo(s*.95,s*.65);ctx.stroke()}else if(p.type==='Dungeon'){ctx.beginPath();ctx.arc(0,s*.05,s*.72,Math.PI,0);ctx.lineTo(s*.72,s*.72);ctx.lineTo(-s*.72,s*.72);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(0,-s*.45);ctx.lineTo(0,s*.72);ctx.stroke();ctx.beginPath();ctx.arc(s*.27,s*.14,worldSize(1.2),0,Math.PI*2);ctx.fill()}else if(p.type==='Quest-Ort'){drawStar(0,0,s*.82,s*.36);ctx.fill();ctx.stroke()}else if(p.type==='Lager'){ctx.beginPath();ctx.moveTo(-s*.9,s*.66);ctx.lineTo(0,-s*.78);ctx.lineTo(s*.9,s*.66);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(0,-s*.78);ctx.lineTo(0,s*.66);ctx.moveTo(-s*.5,s*.12);ctx.lineTo(s*.5,s*.12);ctx.stroke()}else{ctx.beginPath();ctx.arc(0,-s*.18,s*.53,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(-s*.38,s*.18);ctx.lineTo(0,s*.82);ctx.lineTo(s*.38,s*.18);ctx.stroke()}ctx.restore()}
+function drawPois(){pois.forEach(p=>{drawPoiSymbol(p);if(showPoiLabels())drawLabel(p.name,p.x+worldSize(17),p.y+worldSize(7),p.color||legacyPoiColor(p.type))})}
+function roundedRect(x,y,w,h,r){const radius=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+radius,y);ctx.arcTo(x+w,y,x+w,y+h,radius);ctx.arcTo(x+w,y+h,x,y+h,radius);ctx.arcTo(x,y+h,x,y,radius);ctx.arcTo(x,y,x+w,y,radius);ctx.closePath()}
+function wrapCanvasText(text,maxWidth){const words=String(text||'Keine Notiz vorhanden.').split(/\s+/).filter(Boolean);const lines=[];let line='';for(const word of words){const candidate=line?`${line} ${word}`:word;if(ctx.measureText(candidate).width<=maxWidth||!line)line=candidate;else{lines.push(line);line=word}}if(line)lines.push(line);return lines.slice(0,6)}
+function drawSelectedPoiInfo(p){if(!p)return;const padding=10,maxWidth=Math.min(320,Math.max(180,viewport.clientWidth-28)),screenX=p.x*zoom+pan.x,screenY=p.y*zoom+pan.y;ctx.save();ctx.font='13px Arial';const lines=wrapCanvasText(p.note,maxWidth-padding*2);ctx.font='bold 14px Arial';const title=`${p.name} · ${p.type}`,titleWidth=ctx.measureText(title).width;ctx.font='13px Arial';const noteWidth=Math.max(...lines.map(line=>ctx.measureText(line).width),0),width=Math.min(maxWidth,Math.max(170,titleWidth,noteWidth)+padding*2),height=padding*2+18+(lines.length?7+lines.length*17:0);let x=screenX+22,y=screenY+22;if(x+width>viewport.clientWidth-12)x=screenX-width-22;if(x<12)x=12;if(y+height>viewport.clientHeight-12)y=viewport.clientHeight-height-12;if(y<12)y=12;ctx.fillStyle='rgba(12,15,21,.94)';ctx.strokeStyle=p.color||legacyPoiColor(p.type);ctx.lineWidth=1.5;roundedRect(x,y,width,height,10);ctx.fill();ctx.stroke();ctx.fillStyle=p.color||legacyPoiColor(p.type);ctx.font='bold 14px Arial';ctx.fillText(title,x+padding,y+padding+13);ctx.fillStyle='#e4e8f0';ctx.font='13px Arial';lines.forEach((line,index)=>ctx.fillText(line,x+padding,y+padding+38+index*17));ctx.restore()}
+function draw(){const dpr=getDevicePixelRatio();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,viewport.clientWidth,viewport.clientHeight);if(!mapImage)return;ctx.save();ctx.translate(pan.x,pan.y);ctx.scale(zoom,zoom);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(mapImage,0,0);if(showCalibrationMarkers&&calibrationPoints.length>0){calibrationPoints.forEach((p,i)=>drawPoint(p,'#c99b4a',`K${i+1}`,'calibrate',i));if(calibrationPoints.length===2){const a=calibrationPoints[0],b=calibrationPoints[1];drawLine(a,b,'#c99b4a',5);drawLabel(`Maßstab: ${formatDistance(getKnownDistance())}`,(a.x+b.x)/2+worldSize(8),(a.y+b.y)/2-worldSize(8),'#c99b4a')}}if(measurePoints.length>0){measurePoints.forEach((p,i)=>drawPoint(p,'#5ee1ff',`M${i+1}`,'measure',i));if(measurePoints.length===2){const a=measurePoints[0],b=measurePoints[1],value=worldBetween(a,b);drawLine(a,b,'#5ee1ff',5);drawLabel(value!==null?formatDistance(value):'Nicht kalibriert',(a.x+b.x)/2+worldSize(8),(a.y+b.y)/2-worldSize(8),'#5ee1ff')}}if(routePoints.length>0){routePoints.forEach((p,i)=>drawPoint(p,'#79f29b',`R${i+1}`,'route',i));for(let i=1;i<routePoints.length;i++)drawLine(routePoints[i-1],routePoints[i],'#79f29b',4);if(routePoints.length>=2){const total=routeWorld(routePoints),last=routePoints[routePoints.length-1];drawLabel(total!==null?`Route: ${formatDistance(total)}`:'Route: nicht kalibriert',last.x+worldSize(10),last.y-worldSize(10),'#79f29b')}}drawPois();ctx.restore();drawSelectedPoiInfo(pois.find(p=>p.id===selectedPoiId))}
+
+function deactivateTool(){mode=null;clearSelection();updateStats();draw();scheduleSave()}
+function setMode(nextMode){if(!mapImage){alert('Lade zuerst eine Karte.');return}if(mode===nextMode){deactivateTool();return}mode=nextMode;clearSelection();updateStats();draw();scheduleSave()}
+function startCalibration(force=false){if(!mapImage){alert('Lade zuerst eine Karte.');return}if(mode==='calibrate'&&!force){deactivateTool();return}if(!force&&calibrationPoints.length>0&&!confirm('Die aktuelle Kalibrierung wird ersetzt. Fortfahren?'))return;calibrationPoints=[];calibrationScale=null;showCalibrationMarkers=true;clearSelection();mode='calibrate';updateStats();draw();scheduleSave()}
+function clearCalibration(){if(!calibrationPoints.length)return;if(!confirm('Maßstab wirklich entfernen? Alle Messwerte bleiben als Punkte erhalten, können aber nicht mehr berechnet werden.'))return;calibrationPoints=[];calibrationScale=null;showCalibrationMarkers=false;clearSelection();updateStats();draw();scheduleSave()}
+function handleMapPoint(point){clearSelection();if(mode==='calibrate'){if(calibrationPoints.length<2){calibrationPoints.push(point);selectedPoint={type:'calibrate',index:calibrationPoints.length-1};recalcCalibration();if(calibrationPoints.length===2)showCalibrationModal()}return}if(mode==='measure'){if(measurePoints.length>=2)measurePoints=[point];else measurePoints.push(point);selectedPoint={type:'measure',index:measurePoints.length-1};return}if(mode==='route'){routePoints.push(point);selectedPoint={type:'route',index:routePoints.length-1};return}if(mode==='poi'){const poi={id:makeId('poi'),name:`POI ${pois.length+1}`,type:'Sonstiges',note:'',color:POI_COLORS[0].value,x:point.x,y:point.y};pois.push(poi);selectedPoiId=poi.id;renderPoiList();openPoiModal(poi.id,true)}}
+function beginPointDrag(event,hit){selectedPoint=hit;selectedPoiId=null;pointerAction={kind:'point',type:hit.type,index:hit.index,pointerId:event.pointerId,moved:false};viewport.setPointerCapture(event.pointerId);updateStats();draw()}
+function beginPoiDrag(event,poi){pointerAction={kind:'poi',id:poi.id,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,moved:false};viewport.setPointerCapture(event.pointerId)}
+function beginPan(event){if(!mapImage)return;pointerAction={kind:'pan',pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startPanX:pan.x,startPanY:pan.y};viewport.classList.add('panning');viewport.setPointerCapture(event.pointerId)}
+function updateCursor(event){if(!mapImage||pointerAction)return;const point=getWorldPoint(event),poiHit=findPoiHit(point),pointHit=findPointHit(point);if(poiHit||pointHit)canvas.style.cursor='pointer';else if(mode==='calibrate'||mode==='measure'||mode==='route'||mode==='poi')canvas.style.cursor='crosshair';else canvas.style.cursor='default'}
+function onViewportPointerDown(event){if(event.button===1){event.preventDefault();beginPan(event);return}if(event.button!==0||modalOpen||event.target!==canvas)return;event.preventDefault();const point=getWorldPoint(event),poiHit=findPoiHit(point);if(poiHit){beginPoiDrag(event,poiHit);return}const pointHit=findPointHit(point);if(pointHit){beginPointDrag(event,pointHit);return}if(!mode){clearSelection();lastPoiClick=null;draw();return}handleMapPoint(point);updateStats();draw();scheduleSave()}
+function onViewportPointerMove(event){if(pointerAction){if(pointerAction.kind==='pan'){pan.x=pointerAction.startPanX+(event.clientX-pointerAction.startX);pan.y=pointerAction.startPanY+(event.clientY-pointerAction.startY);applyCanvasTransform();draw();scheduleSave();return}if(pointerAction.kind==='point'){const points=pointArrayForType(pointerAction.type);if(!points)return;points[pointerAction.index]=getWorldPoint(event);pointerAction.moved=true;recalcCalibration();updateStats();draw();scheduleSave();return}if(pointerAction.kind==='poi'){const poi=pois.find(p=>p.id===pointerAction.id);if(!poi)return;const dx=event.clientX-pointerAction.startX,dy=event.clientY-pointerAction.startY;if(!pointerAction.moved&&Math.hypot(dx,dy)<3)return;pointerAction.moved=true;lastPoiClick=null;const next=getWorldPoint(event);poi.x=next.x;poi.y=next.y;selectedPoiId=poi.id;draw();scheduleSave();return}}if(event.target===canvas)updateCursor(event)}
+function registerPoiClick(poi,event){const now=Date.now();const samePoi=lastPoiClick?.id===poi.id;const quickEnough=samePoi&&(now-lastPoiClick.time)<=420;lastPoiClick={id:poi.id,time:now};selectedPoiId=poi.id;selectedPoint=null;draw();if(quickEnough){lastPoiClick=null;openPoiModal(poi.id,false)}}
+function onViewportPointerUp(event){if(!pointerAction||pointerAction.pointerId!==event.pointerId)return;const action=pointerAction;pointerAction=null;viewport.classList.remove('panning');try{viewport.releasePointerCapture(event.pointerId)}catch{}if(action.kind==='poi'){const poi=pois.find(p=>p.id===action.id);if(action.moved){lastPoiClick=null;selectedPoiId=action.id;renderPoiList()}else if(poi){registerPoiClick(poi,event)}}updateStats();draw();scheduleSave(0);if(event.target===canvas)updateCursor(event)}
+// Fallback für Browser, die zusätzlich ein natives dblclick auslösen. Die eigene Erkennung oben ist maßgeblich.
+function onViewportDoubleClick(event){if(event.button!==0||modalOpen)return;const poi=findPoiHit(getWorldPoint(event));if(!poi)return;event.preventDefault();selectedPoiId=poi.id;draw();openPoiModal(poi.id,false)}
+function deleteSelectedPoint(){if(!selectedPoint)return;const points=pointArrayForType(selectedPoint.type);if(!points)return;points.splice(selectedPoint.index,1);selectedPoint=null;recalcCalibration();updateStats();draw();scheduleSave()}
+
+function renderPoiList(){const list=document.getElementById('poiList');if(!pois.length){list.innerHTML='<div class="notice">Noch keine POIs gesetzt.</div>';return}list.innerHTML=pois.map(p=>`<div class="poi-item"><div class="poi-top"><div class="poi-title-wrap"><span class="poi-swatch" style="background:${escapeHtml(p.color||legacyPoiColor(p.type))}"></span><div><div class="poi-title">${escapeHtml(p.name)}</div><div class="poi-meta">${escapeHtml(p.type)}</div></div></div><div class="poi-actions"><button type="button" data-focus-poi="${escapeHtml(p.id)}">zeigen</button><button type="button" data-edit-poi="${escapeHtml(p.id)}">bearbeiten</button></div></div></div>`).join('')}
+function focusPoi(id){const p=pois.find(item=>item.id===id);if(!p||!mapImage)return;selectedPoiId=p.id;selectedPoint=null;pan.x=viewport.clientWidth/2-p.x*zoom;pan.y=viewport.clientHeight/2-p.y*zoom;applyCanvasTransform();draw();scheduleSave()}
+function buildPoiListHtml(list){if(!list.length)return '<div><strong>Keine POIs vorhanden.</strong></div>';return `<div><strong>${list.length} POI${list.length===1?'':'s'}:</strong><ul class="delete-list">${list.map(p=>`<li>${escapeHtml(p.name)} <span class="notice">(${escapeHtml(p.type)})</span></li>`).join('')}</ul></div>`}
+function clearPois(){if(!pois.length)return;const current=activeMap();openConfirmModal({title:'Alle POIs löschen',message:`Die POIs werden nur von „${current?.name||mapName}“ entfernt. Karte, Maßstab und Messungen bleiben erhalten.`,details:buildPoiListHtml(pois)+'<div class="confirm-warning">Diese Aktion kann nur über ein vorher exportiertes Backup rückgängig gemacht werden.</div>',actionLabel:'Alle POIs löschen',onConfirm:()=>{pois=[];selectedPoiId=null;renderPoiList();draw();scheduleSave(0)}})}
+function renderPoiColorPicker(){const picker=document.getElementById('poiColorPicker');picker.innerHTML=POI_COLORS.map(c=>`<button type="button" class="color-swatch${c.value===poiDraftColor?' selected':''}" data-poi-color="${c.value}" title="${c.name}" aria-label="${c.name}" style="background:${c.value}"></button>`).join('')}
+function openPoiModal(id,isNew){const poi=pois.find(p=>p.id===id);if(!poi)return;editingPoiId=id;poiModalIsNew=Boolean(isNew);poiDraftColor=poi.color||legacyPoiColor(poi.type);document.getElementById('poiModalTitle').textContent=isNew?'POI erstellen':'POI bearbeiten';document.getElementById('poiModalName').value=poi.name||'';document.getElementById('poiModalType').value=POI_TYPES.includes(poi.type)?poi.type:'Sonstiges';document.getElementById('poiModalNote').value=poi.note||'';document.getElementById('poiDeleteButton').style.display=isNew?'none':'inline-block';renderPoiColorPicker();modalOpen=true;document.getElementById('poiModal').classList.add('open');setTimeout(()=>document.getElementById('poiModalName').focus(),0)}
+function closePoiModal({discardNew=false}={}){if(discardNew&&poiModalIsNew&&editingPoiId){pois=pois.filter(p=>p.id!==editingPoiId);if(selectedPoiId===editingPoiId)selectedPoiId=null;renderPoiList();draw();scheduleSave()}modalOpen=false;document.getElementById('poiModal').classList.remove('open');editingPoiId=null;poiModalIsNew=false}
+function savePoiModal(){const poi=pois.find(p=>p.id===editingPoiId);if(!poi)return;const type=document.getElementById('poiModalType').value;poi.type=POI_TYPES.includes(type)?type:'Sonstiges';poi.name=document.getElementById('poiModalName').value.trim()||`${poi.type} ${pois.indexOf(poi)+1}`;poi.note=document.getElementById('poiModalNote').value.trim();poi.color=poiDraftColor;closePoiModal();renderPoiList();draw();scheduleSave(0)}
+function deletePoiFromModal(){const poi=pois.find(p=>p.id===editingPoiId);if(!poi)return;if(!confirm(`POI „${poi.name}“ wirklich löschen?`))return;pois=pois.filter(p=>p.id!==poi.id);if(selectedPoiId===poi.id)selectedPoiId=null;closePoiModal();renderPoiList();draw();scheduleSave(0)}
+
+function showCalibrationModal(){recalcCalibration();const result=document.getElementById('calibrationModalResult'),px=calibrationPoints.length===2?Math.round(distancePx(calibrationPoints[0],calibrationPoints[1])):0;result.textContent=`${formatDistance(getKnownDistance())} entsprechen ${px} Pixeln.`;modalOpen=true;document.getElementById('calibrationModal').classList.add('open');setTimeout(()=>document.getElementById('confirmCalibrationButton').focus(),0)}
+function closeCalibrationModal(){modalOpen=false;document.getElementById('calibrationModal').classList.remove('open')}
+
+function openConfirmModal({title,message,details='',actionLabel='Löschen',onConfirm}){pendingConfirmAction=onConfirm;document.getElementById('confirmModalTitle').textContent=title;document.getElementById('confirmModalMessage').textContent=message;document.getElementById('confirmModalDetails').innerHTML=details;document.getElementById('confirmModalActionButton').textContent=actionLabel;modalOpen=true;document.getElementById('confirmModal').classList.add('open');setTimeout(()=>document.getElementById('confirmModalCancelButton').focus(),0)}
+function closeConfirmModal(){pendingConfirmAction=null;modalOpen=false;document.getElementById('confirmModal').classList.remove('open')}
+function confirmModalAction(){const action=pendingConfirmAction;closeConfirmModal();if(typeof action==='function')action()}
+function openRenameMapModal(id){const map=maps.find(m=>m.id===id);if(!map)return;renamingMapId=id;document.getElementById('renameMapInput').value=map.name;modalOpen=true;document.getElementById('renameMapModal').classList.add('open');setTimeout(()=>{const input=document.getElementById('renameMapInput');input.focus();input.select()},0)}
+function closeRenameMapModal(){renamingMapId=null;modalOpen=false;document.getElementById('renameMapModal').classList.remove('open')}
+function saveMapRename(){const map=maps.find(m=>m.id===renamingMapId);if(!map)return;const name=document.getElementById('renameMapInput').value.trim();if(name)map.name=name;if(map.id===activeMapId)mapName=map.name;closeRenameMapModal();renderMapList();updateStats();scheduleSave(0)}
+
+function renderMapList(){const list=document.getElementById('mapList');if(!maps.length){list.innerHTML='<div class="map-list-empty">Noch keine Karte im Projekt. Füge oben eine Bilddatei hinzu.</div>';return}list.innerHTML=maps.map((map,index)=>`<div class="map-item${map.id===activeMapId?' active':''}" data-map-id="${escapeHtml(map.id)}" title="${escapeHtml(map.name)}"><div class="map-item-main"><div class="map-item-name">${escapeHtml(map.name)}</div><div class="map-item-meta">${escapeHtml(mapSummary(map))}</div></div><div class="map-item-actions"><button type="button" data-map-action="up" data-map-id="${escapeHtml(map.id)}" ${index===0?'disabled':''} aria-label="Karte nach oben">↑</button><button type="button" data-map-action="down" data-map-id="${escapeHtml(map.id)}" ${index===maps.length-1?'disabled':''} aria-label="Karte nach unten">↓</button><button type="button" data-map-action="rename" data-map-id="${escapeHtml(map.id)}" aria-label="Karte umbenennen">✎</button><button type="button" class="mini-danger" data-map-action="delete" data-map-id="${escapeHtml(map.id)}" aria-label="Karte löschen">×</button></div></div>`).join('')}
+function requestDeleteMap(id){syncActiveMap();const map=maps.find(m=>m.id===id);if(!map)return;const index=maps.findIndex(m=>m.id===id);openConfirmModal({title:'Gespeicherte Karte entfernen',message:`„${map.name}“ wird vollständig aus diesem Kartenprojekt entfernt.`,details:`<div><strong>Es werden gelöscht:</strong></div><ul class="delete-list"><li>Kartenbild</li><li>Maßstab, Messungen und Route</li><li>POIs und alle zugehörigen Notizen</li></ul>${buildPoiListHtml(map.pois||[])}<div class="confirm-warning">Diese Aktion kann nur über ein vorher exportiertes Backup rückgängig gemacht werden.</div>`,actionLabel:'Karte endgültig entfernen',onConfirm:async()=>{maps.splice(index,1);if(id===activeMapId){const next=maps[index]||maps[index-1]||null;if(next)await activateMap(next.id,{skipCapture:true});else clearRuntimeMap()}renderMapList();scheduleSave(0)}})}
+function moveMap(id,direction){const index=maps.findIndex(m=>m.id===id),target=index+direction;if(index<0||target<0||target>=maps.length)return;[maps[index],maps[target]]=[maps[target],maps[index]];renderMapList();scheduleSave(0)}
+async function onMapListClick(event){const actionButton=event.target.closest('[data-map-action]');if(actionButton){event.stopPropagation();const id=actionButton.dataset.mapId,action=actionButton.dataset.mapAction;if(action==='up')moveMap(id,-1);if(action==='down')moveMap(id,1);if(action==='rename')openRenameMapModal(id);if(action==='delete')requestDeleteMap(id);return}const item=event.target.closest('[data-map-id]');if(item&&item.dataset.mapId!==activeMapId)await activateMap(item.dataset.mapId)}
+
+function loadImageFromBlob(blob){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(blob),image=new Image();image.onload=()=>{URL.revokeObjectURL(url);resolve(image)};image.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Das Kartenbild konnte nicht geladen werden.'))};image.src=url})}
+function clearRuntimeMap(){mapImage=null;mapBlob=null;mapName='';mode=null;zoom=1;pan={x:0,y:0};calibrationPoints=[];calibrationScale=null;showCalibrationMarkers=false;measurePoints=[];routePoints=[];pois=[];clearSelection();pointerAction=null;activeMapId=null;canvas.style.display='none';emptyMap.style.display='grid';resizeCanvas();renderPoiList();updateStats()}
+function applyRuntimeFromMap(map){mapBlob=map.mapBlob;mapName=map.name;document.getElementById('knownDistanceInput').value=map.knownDistance;document.getElementById('distanceUnitInput').value=map.unit;document.getElementById('poiLabelToggle').checked=map.poiLabelVisibility!=='hide';calibrationPoints=clonePoints(map.calibrationPoints).slice(0,2);measurePoints=clonePoints(map.measurePoints).slice(0,2);routePoints=clonePoints(map.routePoints);pois=(Array.isArray(map.pois)?map.pois:[]).map(normalizePoi).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));zoom=Number.isFinite(Number(map.zoom))?Number(map.zoom):1;pan={x:Number.isFinite(Number(map.pan?.x))?Number(map.pan.x):0,y:Number.isFinite(Number(map.pan?.y))?Number(map.pan.y):0};recalcCalibration();showCalibrationMarkers=false;mode=null;clearSelection();pointerAction=null}
+async function activateMap(id,{skipCapture=false}={}){const map=maps.find(m=>m.id===id);if(!map||!map.mapBlob)return;if(!skipCapture)syncActiveMap();activeMapId=id;applyRuntimeFromMap(map);const token=++mapLoadToken;try{const image=await loadImageFromBlob(map.mapBlob);if(token!==mapLoadToken)return;mapImage=image;canvas.style.display='block';emptyMap.style.display='none';resizeCanvas();if(!Number.isFinite(zoom)||zoom<=0)fitMapToViewport();else{applyCanvasTransform();draw()}renderPoiList();renderMapList();updateStats();scheduleSave(0)}catch(error){console.error(error);alert(`Die Karte „${map.name}“ konnte nicht geladen werden.`)}}
+async function addMapFromFile(file){if(!file)return;syncActiveMap();const map=normalizeMapRecord({id:makeId('map'),name:file.name,mapBlob:file,knownDistance:10,unit:'km',poiLabelVisibility:'show',calibrationPoints:[],measurePoints:[],routePoints:[],pois:[],zoom:1,pan:{x:0,y:0}},maps.length);maps.push(map);renderMapList();await activateMap(map.id,{skipCapture:true});fitMapToViewport();scheduleSave(0)}
+
+function blobToDataUrl(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(reader.error||new Error('Kartenbild konnte nicht exportiert werden.'));reader.readAsDataURL(blob)})}
+function dataUrlToBlob(dataUrl){const match=String(dataUrl||'').match(/^data:([^;,]+)?;base64,(.*)$/s);if(!match)throw new Error('Das Kartenbild im Projektformat ist ungültig.');const binary=atob(match[2]),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new Blob([bytes],{type:match[1]||'image/*'})}
+function safeFileStem(name){const stem=String(name||'kartenprojekt').replace(/\.[^.]+$/,'').replace(/[^a-z0-9äöüß_-]+/gi,'-').replace(/^-+|-+$/g,'');return stem||'kartenprojekt'}
+function downloadBlob(blob,fileName){const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=fileName;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),0)}
+async function exportProject(playerVersion=false){if(!maps.length){alert('Füge zuerst mindestens eine Karte hinzu, bevor du ein Projekt exportierst.');return}try{syncActiveMap();setStorageStatus('Export wird erstellt …');const exportMaps=[];for(const source of maps){const map=normalizeMapRecord(source);if(!map.mapBlob)continue;const mapDataUrl=await blobToDataUrl(map.mapBlob);exportMaps.push({id:map.id,name:map.name,knownDistance:map.knownDistance,unit:map.unit,poiLabelVisibility:map.poiLabelVisibility,calibrationPoints:map.calibrationPoints,measurePoints:map.measurePoints,routePoints:map.routePoints,pois:map.pois.map(p=>playerVersion?{...p,note:''}:{...p}),zoom:map.zoom,pan:map.pan,map:{name:map.name,type:map.mapBlob.type||'image/*',dataUrl:mapDataUrl}})}const payload={format:'dnd-kartenwerkzeug-project',exportVersion:2,exportedAt:new Date().toISOString(),kind:playerVersion?'player':'dm',library:{version:11,activeMapId,maps:exportMaps}};const suffix=playerVersion?'spielerversion':'dm-backup';downloadBlob(new Blob([JSON.stringify(payload)],{type:'application/json'}),`${safeFileStem(activeMap()?.name||'kartenprojekt')}-${suffix}.dndmaps.json`);setStorageStatus('Export erstellt','good')}catch(error){setStorageStatus('Export fehlgeschlagen','bad');alert('Das Projekt konnte nicht exportiert werden.');console.error(error)}}
+async function importProject(file){if(!file)return;if(maps.length&&!confirm('Das importierte Projekt ersetzt das gesamte aktuelle Kartenprojekt mit allen Karten. Fortfahren?'))return;try{setStorageStatus('Projekt wird importiert …');const payload=JSON.parse(await file.text());if(payload?.format!=='dnd-kartenwerkzeug-project')throw new Error('Ungültiges Projektformat.');let importedMaps=[],importedActive=null;if(payload.library?.maps){for(const raw of payload.library.maps){if(!raw?.map?.dataUrl)continue;const blob=dataUrlToBlob(raw.map.dataUrl);importedMaps.push(normalizeMapRecord({...raw,mapBlob:blob},importedMaps.length))}importedActive=payload.library.activeMapId}else if(payload.workspace?.map?.dataUrl){const raw=payload.workspace,blob=dataUrlToBlob(raw.map.dataUrl);importedMaps=[normalizeMapRecord({id:makeId('map'),name:raw.mapName||raw.map.name||'Importierte Karte',mapBlob:blob,knownDistance:raw.knownDistance,unit:raw.unit,poiLabelVisibility:raw.poiLabelVisibility,calibrationPoints:raw.calibrationPoints,measurePoints:raw.measurePoints,routePoints:raw.routePoints,pois:raw.pois,zoom:raw.zoom,pan:raw.pan},0)];importedActive=importedMaps[0].id}else throw new Error('Ungültiges Projektformat.');if(!importedMaps.length)throw new Error('Das Projekt enthält keine Karten.');maps=importedMaps;activeMapId=maps.some(m=>m.id===importedActive)?importedActive:maps[0].id;await activateMap(activeMapId,{skipCapture:true});renderMapList();scheduleSave(0);setStorageStatus(payload.kind==='player'?'Spielerversion importiert':'DM-Backup importiert','good')}catch(error){setStorageStatus('Import fehlgeschlagen','bad');alert('Das Projekt konnte nicht importiert werden. Prüfe, ob die Datei ein gültiges Kartenwerkzeug-Projekt ist.');console.error(error)}}
+
+async function restoreLibrary(){try{setStorageStatus('Gespeicherte Karten werden geladen …');const saved=await readRecord(LIBRARY_KEY);if(saved?.maps?.length){maps=saved.maps.map(normalizeMapRecord).filter(m=>m.mapBlob);activeMapId=maps.some(m=>m.id===saved.activeMapId)?saved.activeMapId:maps[0]?.id||null;if(activeMapId)await activateMap(activeMapId,{skipCapture:true});else clearRuntimeMap();setStorageStatus('Gespeicherte Karten geladen','good');return}const legacy=await readRecord(LEGACY_KEY);if(legacy?.mapBlob){const migrated=normalizeMapRecord({id:makeId('map'),name:legacy.mapName||'Gespeicherte Karte',mapBlob:legacy.mapBlob,knownDistance:legacy.knownDistance,unit:legacy.unit,poiLabelVisibility:legacy.poiLabelVisibility,calibrationPoints:legacy.calibrationPoints,measurePoints:legacy.measurePoints,routePoints:legacy.routePoints,pois:legacy.pois,zoom:legacy.zoom,pan:legacy.pan},0);maps=[migrated];activeMapId=migrated.id;await activateMap(activeMapId,{skipCapture:true});setStorageStatus('Vorherige Karte übernommen','good');scheduleSave(0);return}maps=[];activeMapId=null;clearRuntimeMap();renderMapList();setStorageStatus('Noch keine Karte gespeichert')}catch(error){storageAvailable=false;setStorageStatus('Gespeicherte Karten konnten nicht geladen werden','bad');console.error(error);renderMapList();clearRuntimeMap()}}
+
+mapInput.addEventListener('change',async event=>{const file=event.target.files?.[0];event.target.value='';await addMapFromFile(file)});
+document.getElementById('mapAddButton').addEventListener('click',()=>mapInput.click());
+document.getElementById('mapList').addEventListener('click',onMapListClick);
+document.getElementById('startCalibrationButton').addEventListener('click',()=>startCalibration());
+document.getElementById('clearCalibrationButton').addEventListener('click',clearCalibration);
+document.getElementById('measureModeButton').addEventListener('click',()=>setMode('measure'));
+document.getElementById('routeModeButton').addEventListener('click',()=>setMode('route'));
+document.getElementById('poiModeButton').addEventListener('click',()=>setMode('poi'));
+document.getElementById('clearPoisButton').addEventListener('click',clearPois);
+document.getElementById('exportDmButton').addEventListener('click',()=>exportProject(false));
+document.getElementById('exportPlayerButton').addEventListener('click',()=>exportProject(true));
+document.getElementById('importProjectButton').addEventListener('click',()=>projectImportInput.click());
+projectImportInput.addEventListener('change',async event=>{const file=event.target.files?.[0];event.target.value='';await importProject(file)});
+document.getElementById('confirmCalibrationButton').addEventListener('click',()=>{closeCalibrationModal();showCalibrationMarkers=false;deactivateTool()});
+document.getElementById('adjustCalibrationButton').addEventListener('click',()=>{closeCalibrationModal();showCalibrationMarkers=true;mode='calibrate';clearSelection();updateStats();draw()});
+document.getElementById('restartCalibrationButton').addEventListener('click',()=>{closeCalibrationModal();startCalibration(true)});
+document.getElementById('poiSaveButton').addEventListener('click',savePoiModal);
+document.getElementById('poiCancelButton').addEventListener('click',()=>closePoiModal({discardNew:true}));
+document.getElementById('poiDeleteButton').addEventListener('click',deletePoiFromModal);
+document.getElementById('poiColorPicker').addEventListener('click',event=>{const button=event.target.closest('[data-poi-color]');if(!button)return;poiDraftColor=button.dataset.poiColor;renderPoiColorPicker()});
+document.getElementById('poiList').addEventListener('click',event=>{const focus=event.target.closest('[data-focus-poi]');const edit=event.target.closest('[data-edit-poi]');if(focus)focusPoi(focus.dataset.focusPoi);if(edit)openPoiModal(edit.dataset.editPoi,false)});
+document.getElementById('confirmModalCancelButton').addEventListener('click',closeConfirmModal);
+document.getElementById('confirmModalActionButton').addEventListener('click',confirmModalAction);
+document.getElementById('renameMapCancelButton').addEventListener('click',closeRenameMapModal);
+document.getElementById('renameMapSaveButton').addEventListener('click',saveMapRename);
+document.getElementById('renameMapInput').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();saveMapRename()}});
+['knownDistanceInput','distanceUnitInput','poiLabelToggle'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',()=>{updateStats();draw();scheduleSave()});el.addEventListener('change',()=>{updateStats();draw();scheduleSave()})});
+viewport.addEventListener('wheel',event=>{if(!mapImage)return;event.preventDefault();zoomAt(event.clientX,event.clientY,zoom*Math.exp(-event.deltaY*.0015))},{passive:false});
+viewport.addEventListener('pointerdown',onViewportPointerDown);viewport.addEventListener('pointermove',onViewportPointerMove);viewport.addEventListener('pointerup',onViewportPointerUp);viewport.addEventListener('pointercancel',onViewportPointerUp);viewport.addEventListener('dblclick',onViewportDoubleClick);viewport.addEventListener('auxclick',event=>event.preventDefault());viewport.addEventListener('contextmenu',event=>event.preventDefault());
+window.addEventListener('keydown',event=>{const tag=document.activeElement?.tagName?.toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select'||document.activeElement?.isContentEditable;if(event.key==='Escape'&&modalOpen){if(document.getElementById('poiModal').classList.contains('open'))closePoiModal({discardNew:true});else if(document.getElementById('calibrationModal').classList.contains('open'))closeCalibrationModal();else if(document.getElementById('confirmModal').classList.contains('open'))closeConfirmModal();else if(document.getElementById('renameMapModal').classList.contains('open'))closeRenameMapModal();return}if(typing||modalOpen)return;if(event.key==='Escape'){deactivateTool();return}if((event.key==='Delete'||event.key==='Backspace')&&selectedPoint){event.preventDefault();deleteSelectedPoint();return}if(event.key.toLowerCase()==='f'&&mapImage){event.preventDefault();fitMapToViewport()}});
+window.addEventListener('resize',resizeCanvas);if('ResizeObserver' in window){resizeObserver=new ResizeObserver(()=>resizeCanvas());resizeObserver.observe(viewport)}
+
+renderPoiList();renderMapList();resizeCanvas();updateStats();restoreLibrary();
+
+</script>
+</body>
+</html>
