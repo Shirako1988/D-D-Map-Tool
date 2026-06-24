@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>D&D Kartenwerkzeug v11.4</title>
+<title>D&D Kartenwerkzeug v11.5</title>
 <style>
 :root{--bg:#101114;--panel:#1b1d23;--panel2:#252832;--text:#f1f1f1;--muted:#a7adbb;--accent:#5ee1ff;--gold:#c99b4a;--danger:#ff6b6b;--good:#79f29b;--purple:#c084fc;--border:#353945;--shadow:rgba(0,0,0,.45)}
 *{box-sizing:border-box}
@@ -26,7 +26,7 @@ button{border:1px solid var(--border);border-radius:12px;padding:10px 12px;curso
 .poi-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}.poi-item{background:#12151b;border:1px solid var(--border);border-radius:12px;padding:10px}.poi-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.poi-title-wrap{display:flex;align-items:center;gap:8px;min-width:0}.poi-swatch{width:13px;height:13px;flex:0 0 auto;border-radius:50%;border:1px solid rgba(255,255,255,.4)}.poi-title{font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.poi-meta{font-size:12px;color:var(--muted);margin-top:4px;word-break:break-word}.poi-actions{display:flex;gap:6px}.poi-actions button{padding:6px 8px;border-radius:9px}
 .footer{flex:0 0 auto;margin-top:12px;color:var(--muted);font-size:12px;text-align:center}
 .modal-backdrop{position:fixed;z-index:20;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72)}.modal-backdrop.open{display:flex}.modal{width:min(500px,100%);max-height:min(780px,calc(100vh - 40px));overflow:auto;padding:20px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,#1c1f27,#12141a);box-shadow:0 22px 70px rgba(0,0,0,.65)}.modal h2{margin:0 0 10px}.modal p{margin:0;color:var(--muted);line-height:1.5}.modal-result{margin:14px 0;padding:13px;border:1px solid rgba(201,155,74,.4);border-radius:12px;background:rgba(201,155,74,.1);color:var(--gold);font-weight:bold}.modal .buttons{justify-content:flex-end;margin-top:16px}
-.color-picker{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:8px}.color-swatch{height:30px;min-width:0;padding:0;border-radius:9px;border:2px solid rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(0,0,0,.35)}.color-swatch.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(94,225,255,.55),inset 0 0 0 1px rgba(0,0,0,.35)}.modal-section{margin-top:14px}.modal-section label{margin-bottom:8px}.modal-help{margin-top:8px;font-size:12px;color:var(--muted)}
+.color-picker{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:8px}.color-swatch{height:30px;min-width:0;padding:0;border-radius:9px;border:2px solid rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(0,0,0,.35)}.color-swatch.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(94,225,255,.55),inset 0 0 0 1px rgba(0,0,0,.35)}.modal-section{margin-top:14px}.modal-section label{margin-bottom:8px}.modal-help{margin-top:8px;font-size:12px;color:var(--muted)}.coordinate-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.coordinate-field label{font-size:12px;color:var(--muted);margin-bottom:6px}.coordinate-input{font-variant-numeric:tabular-nums;letter-spacing:.08em;text-align:center}
 @media(max-width:1050px){body{height:auto;min-height:100vh;overflow-x:hidden;overflow-y:auto;padding:10px}.app{height:auto;min-height:calc(100vh - 20px)}.header-top{display:block}.storage-status{display:inline-block;margin-top:10px}.grid{display:grid;grid-template-columns:1fr;flex:none}.tool-card{height:auto;overflow:visible}.map-card{height:auto}.map-viewport{height:620px;flex:none}.footer{margin-top:14px}}
 @media(max-width:620px){.row{grid-template-columns:1fr}.map-viewport{height:520px}.map-heading{align-items:flex-start;flex-direction:column}.map-meta{justify-content:flex-start}.map-name{max-width:calc(100vw - 60px)}.color-picker{grid-template-columns:repeat(5,minmax(0,1fr))}}
 
@@ -50,7 +50,7 @@ button.tool-active.purple{border-color:#e0bbff;background:linear-gradient(135deg
 <header>
   <div class="header-top">
     <div>
-      <h1>D&D Kartenwerkzeug v11</h1>
+      <h1>D&D Kartenwerkzeug v11.5</h1>
     </div>
     <div id="storageStatus" class="storage-status">Speicher wird vorbereitet …</div>
   </div>
@@ -70,6 +70,8 @@ button.tool-active.purple{border-color:#e0bbff;background:linear-gradient(135deg
       <label for="mapInput">Neue Karte zum Kartenprojekt hinzufügen</label>
       <input id="mapInput" type="file" accept="image/*">
       <div class="notice">Jede Karte erhält ihren eigenen Maßstab, eigene Messungen, Route, POIs und Kartenansicht. Alle Karten werden automatisch lokal in diesem Browser gespeichert.</div>
+      <div class="buttons"><button id="replaceMapImageButton" type="button" disabled>Kartengrafik der aktiven Karte ersetzen</button><input id="replaceMapImageInput" type="file" accept="image/*" hidden></div>
+      <div class="notice">Ersetzt nur das Bild der aktuell aktiven Karte. POIs, Messungen und Route bleiben erhalten; bei abweichendem Bildausschnitt kann der Maßstab bewusst zurückgesetzt werden.</div>
     </div>
 
     <h3>1. Maßstab kalibrieren</h3>
@@ -131,6 +133,7 @@ button.tool-active.purple{border-color:#e0bbff;background:linear-gradient(135deg
     <div class="modal-section"><label for="poiModalName">Name</label><input id="poiModalName" type="text" maxlength="100" placeholder="z. B. Grünhain"></div>
     <div class="modal-section"><label for="poiModalType">Typ / Symbol</label><select id="poiModalType"><option value="Stadt">Stadt</option><option value="Dorf">Dorf</option><option value="Ruine">Ruine</option><option value="Dungeon">Dungeon</option><option value="Quest-Ort">Quest-Ort</option><option value="Lager">Lager</option><option value="Sonstiges">Sonstiges</option></select></div>
     <div class="modal-section"><label>Farbe</label><div id="poiColorPicker" class="color-picker" aria-label="POI-Farbe auswählen"></div></div>
+    <div class="modal-section"><label>Kartenkoordinate</label><div class="coordinate-grid"><div class="coordinate-field"><label for="poiModalCoordX">X · links → rechts</label><input id="poiModalCoordX" class="coordinate-input" type="text" inputmode="numeric" autocomplete="off" maxlength="3" pattern="[0-9]{1,3}" aria-describedby="poiCoordinateHelp"></div><div class="coordinate-field"><label for="poiModalCoordY">Y · oben → unten</label><input id="poiModalCoordY" class="coordinate-input" type="text" inputmode="numeric" autocomplete="off" maxlength="3" pattern="[0-9]{1,3}" aria-describedby="poiCoordinateHelp"></div></div><div id="poiCoordinateHelp" class="modal-help">000–999. X 000 liegt am linken Rand, X 999 am rechten; Y 000 oben, Y 999 unten. Nach dem Speichern springt der POI an diese Position.</div></div>
     <div class="modal-section"><label for="poiModalNote">Notiz</label><textarea id="poiModalNote" maxlength="1000" placeholder="z. B. Händler, Quest-Hook, gefährliche Ruine …"></textarea></div>
     <div class="modal-help">Auf der Karte: anklicken zeigt die Notiz, ziehen verschiebt den POI und doppelklicken öffnet diesen Editor.</div>
     <div class="buttons"><button id="poiDeleteButton" class="danger" type="button">Löschen</button><button id="poiCancelButton" type="button">Abbrechen</button><button id="poiSaveButton" class="purple" type="button">Speichern</button></div>
@@ -164,6 +167,15 @@ button.tool-active.purple{border-color:#e0bbff;background:linear-gradient(135deg
   </div>
 </div>
 
+<div id="replaceMapModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="replaceMapModalTitle">
+  <div class="modal">
+    <h2 id="replaceMapModalTitle">Kartengrafik ersetzen</h2>
+    <p id="replaceMapModalMessage">Die neue Bilddatei ersetzt ausschließlich die Grafik der aktiven Karte.</p>
+    <div id="replaceMapModalDetails" class="confirm-details"></div>
+    <div class="buttons"><button id="replaceMapCancelButton" type="button">Abbrechen</button><button id="replaceMapKeepButton" class="primary" type="button">Bild ersetzen<br>und Daten behalten</button><button id="replaceMapResetCalibrationButton" class="gold" type="button">Bild ersetzen<br>und Maßstab zurücksetzen</button></div>
+  </div>
+</div>
+
 <script>
 
 const canvas=document.getElementById('mapCanvas');
@@ -172,6 +184,7 @@ const viewport=document.getElementById('mapViewport');
 const emptyMap=document.getElementById('emptyMap');
 const mapInput=document.getElementById('mapInput');
 const projectImportInput=document.getElementById('projectImportInput');
+const replaceMapImageInput=document.getElementById('replaceMapImageInput');
 
 const DB_NAME='DndKartenwerkzeugDB';
 const DB_VERSION=1;
@@ -218,6 +231,8 @@ let mapLoadToken=0;
 let pendingConfirmAction=null;
 let pendingConfirmCancel=null;
 let renamingMapId=null;
+let pendingMapReplacementFile=null;
+let pendingMapReplacementTargetId=null;
 
 function makeId(prefix='item'){return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`}
 function escapeHtml(value){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
@@ -236,6 +251,13 @@ function worldSize(screenPixels){return screenPixels/Math.max(zoom,0.0001)}
 function getDevicePixelRatio(){return Math.min(window.devicePixelRatio||1,2)}
 function legacyPoiColor(type){return({Stadt:'#5ee1ff',Dorf:'#79f29b',Ruine:'#c99b4a',Dungeon:'#ff6b6b','Quest-Ort':'#c084fc',Lager:'#f59e0b',Sonstiges:'#f1f1f1'})[type]||POI_COLORS[0].value}
 function normalizePoi(raw,index=0){const type=POI_TYPES.includes(raw?.type)?raw.type:'Sonstiges';const color=POI_COLORS.some(c=>c.value===raw?.color)?raw.color:legacyPoiColor(type);return{id:String(raw?.id||makeId('poi')),name:String(raw?.name||`${type} ${index+1}`),type,note:String(raw?.note||''),color,x:Number(raw?.x),y:Number(raw?.y)}}
+function mapWorldDimensions(){return{width:Math.max(1,Number(mapImage?.naturalWidth)||1),height:Math.max(1,Number(mapImage?.naturalHeight)||1)}}
+function formatMapCoordinate(value){return String(clamp(Math.round(Number(value)||0),0,999)).padStart(3,'0')}
+function poiToMapCoordinates(poi){const {width,height}=mapWorldDimensions();return{x:clamp(Math.round((Number(poi?.x)||0)/width*999),0,999),y:clamp(Math.round((Number(poi?.y)||0)/height*999),0,999)}}
+function parseMapCoordinate(value,fallback){const raw=String(value??'').trim();if(!/^\d{1,3}$/.test(raw))return fallback;return clamp(Math.round(Number(raw)),0,999)}
+function applyMapCoordinatesToPoi(poi,xCoordinate,yCoordinate){const {width,height}=mapWorldDimensions();poi.x=clamp((xCoordinate/999)*width,0,width);poi.y=clamp((yCoordinate/999)*height,0,height)}
+function scalePointCollectionForReplacement(points,scaleX,scaleY){return clonePoints(points).map(point=>({x:point.x*scaleX,y:point.y*scaleY}))}
+function scaleOverlayPositionsForReplacement(oldWidth,oldHeight,newWidth,newHeight,{includeCalibration=true}={}){if(!(oldWidth>0&&oldHeight>0&&newWidth>0&&newHeight>0))return;const scaleX=newWidth/oldWidth,scaleY=newHeight/oldHeight;if(includeCalibration)calibrationPoints=scalePointCollectionForReplacement(calibrationPoints,scaleX,scaleY);measurePoints=scalePointCollectionForReplacement(measurePoints,scaleX,scaleY);routePoints=scalePointCollectionForReplacement(routePoints,scaleX,scaleY);pois=pois.map((poi,index)=>{const normalized=normalizePoi(poi,index);normalized.x=clamp(normalized.x*scaleX,0,newWidth);normalized.y=clamp(normalized.y*scaleY,0,newHeight);return normalized})}
 function normalizeMapRecord(raw,index=0){
   const name=String(raw?.name||raw?.mapName||`Karte ${index+1}`);
   return {id:String(raw?.id||makeId('map')),name,mapBlob:raw?.mapBlob||null,knownDistance:Number.isFinite(Number(raw?.knownDistance))?Number(raw.knownDistance):10,unit:['km','mi','ft','m'].includes(raw?.unit)?raw.unit:'km',poiLabelVisibility:raw?.poiLabelVisibility==='hide'?'hide':'show',calibrationPoints:clonePoints(raw?.calibrationPoints).slice(0,2),measurePoints:clonePoints(raw?.measurePoints).slice(0,2),routePoints:clonePoints(raw?.routePoints),pois:(Array.isArray(raw?.pois)?raw.pois:[]).map(normalizePoi).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)),zoom:Number.isFinite(Number(raw?.zoom))?Number(raw.zoom):1,pan:{x:Number.isFinite(Number(raw?.pan?.x))?Number(raw.pan.x):0,y:Number.isFinite(Number(raw?.pan?.y))?Number(raw.pan.y):0},savedAt:Number(raw?.savedAt)||Date.now()};
@@ -290,7 +312,7 @@ function getModeName(){return({calibrate:'Kalibrierung',measure:'Gerade Strecke'
 function clearSelection(){selectedPoiId=null;selectedPoint=null}
 function updateModeButtons(){const pairs=[['startCalibrationButton','calibrate'],['measureModeButton','measure'],['routeModeButton','route'],['poiModeButton','poi']];pairs.forEach(([id,tool])=>{const btn=document.getElementById(id);const active=mode===tool;btn.classList.toggle('tool-active',active);btn.setAttribute('aria-pressed',String(active))})}
 function updateMapHint(){const el=document.getElementById('mapHint');let text='Mausrad: Zoom auf Mausposition · Mittlere Maustaste: Karte verschieben · <strong>F</strong>: Karte passend anzeigen · Freie Karte anklicken: Auswahl aufheben';if(mode==='calibrate')text=calibrationPoints.length===0?'Kalibrierung: Setze Punkt K1 auf der Karte. Klicke „Maßstab kalibrieren“ erneut, um abzuwählen.':calibrationPoints.length===1?'Kalibrierung: Setze Punkt K2 auf der Karte. Klicke „Maßstab kalibrieren“ erneut, um abzuwählen.':'Kalibrierung: K1 oder K2 anklicken und ziehen. Nach dem Loslassen wird der neue Maßstab zur Bestätigung angezeigt.';if(mode==='measure')text='Gerade Strecke aktiv: Zwei Messpunkte setzen. Button erneut anklicken beendet das Werkzeug.';if(mode==='route')text='Route aktiv: Wegpunkte nacheinander setzen. Button erneut anklicken beendet das Werkzeug.';if(mode==='poi')text='POI platzieren aktiv: Klicke auf die gewünschte Position. Button erneut anklicken beendet das Werkzeug.';el.innerHTML=text}
-function updateStats(){recalcCalibration();const modeText=document.getElementById('modeText');modeText.innerHTML=mode?`<span class="blue">${getModeName()}</span>`:'<span class="bad">Kein Modus gewählt</span>';const badge=document.getElementById('mapModeBadge');badge.textContent=mode?getModeName():'frei';badge.className=mode?'mode active-mode':'mode';const scaleText=document.getElementById('scaleText');if(calibrationScale&&calibrationPoints.length===2){const px=distancePx(calibrationPoints[0],calibrationPoints[1]);scaleText.innerHTML=`<span class="good">Kalibriert</span><br><span class="notice">${formatDistance(getKnownDistance())} = ${Math.round(px)} px</span>`}else scaleText.innerHTML='<span class="bad">Nicht kalibriert</span>';const measureText=document.getElementById('measureText');if(measurePoints.length===2&&calibrationScale)measureText.innerHTML=`<span class="blue">${formatDistance(worldBetween(measurePoints[0],measurePoints[1]))}</span>`;else if(measurePoints.length===2)measureText.innerHTML='<span class="bad">Erst Maßstab kalibrieren</span>';else measureText.textContent='Noch keine Messung';const routeText=document.getElementById('routeText');if(routePoints.length>=2&&calibrationScale)routeText.innerHTML=`<span class="good">${formatDistance(routeWorld(routePoints))}</span>`;else if(routePoints.length>=2)routeText.innerHTML='<span class="bad">Erst Maßstab kalibrieren</span>';else routeText.textContent='Noch keine Route';document.getElementById('clearCalibrationButton').disabled=calibrationPoints.length===0;setMapNameText();updateModeButtons();updateMapHint()}
+function updateStats(){document.getElementById('replaceMapImageButton').disabled=!activeMap();recalcCalibration();const modeText=document.getElementById('modeText');modeText.innerHTML=mode?`<span class="blue">${getModeName()}</span>`:'<span class="bad">Kein Modus gewählt</span>';const badge=document.getElementById('mapModeBadge');badge.textContent=mode?getModeName():'frei';badge.className=mode?'mode active-mode':'mode';const scaleText=document.getElementById('scaleText');if(calibrationScale&&calibrationPoints.length===2){const px=distancePx(calibrationPoints[0],calibrationPoints[1]);scaleText.innerHTML=`<span class="good">Kalibriert</span><br><span class="notice">${formatDistance(getKnownDistance())} = ${Math.round(px)} px</span>`}else scaleText.innerHTML='<span class="bad">Nicht kalibriert</span>';const measureText=document.getElementById('measureText');if(measurePoints.length===2&&calibrationScale)measureText.innerHTML=`<span class="blue">${formatDistance(worldBetween(measurePoints[0],measurePoints[1]))}</span>`;else if(measurePoints.length===2)measureText.innerHTML='<span class="bad">Erst Maßstab kalibrieren</span>';else measureText.textContent='Noch keine Messung';const routeText=document.getElementById('routeText');if(routePoints.length>=2&&calibrationScale)routeText.innerHTML=`<span class="good">${formatDistance(routeWorld(routePoints))}</span>`;else if(routePoints.length>=2)routeText.innerHTML='<span class="bad">Erst Maßstab kalibrieren</span>';else routeText.textContent='Noch keine Route';document.getElementById('clearCalibrationButton').disabled=calibrationPoints.length===0;setMapNameText();updateModeButtons();updateMapHint()}
 
 function drawPoint(point,color,label,type,index){const selected=isSelected(type,index),r=worldSize(7);ctx.save();if(selected){ctx.strokeStyle='#fff';ctx.lineWidth=worldSize(4);ctx.beginPath();ctx.arc(point.x,point.y,worldSize(14),0,Math.PI*2);ctx.stroke();ctx.strokeStyle=color;ctx.lineWidth=worldSize(3);ctx.beginPath();ctx.arc(point.x,point.y,worldSize(18),0,Math.PI*2);ctx.stroke()}ctx.fillStyle=color;ctx.strokeStyle='#000';ctx.lineWidth=worldSize(3);ctx.beginPath();ctx.arc(point.x,point.y,r,0,Math.PI*2);ctx.fill();ctx.stroke();if(label){ctx.font=`bold ${worldSize(18)}px Arial`;ctx.lineWidth=worldSize(4);ctx.strokeStyle='#000';ctx.fillStyle=color;ctx.strokeText(label,point.x+worldSize(10),point.y-worldSize(10));ctx.fillText(label,point.x+worldSize(10),point.y-worldSize(10))}ctx.restore()}
 function drawLine(a,b,color,width=4){ctx.save();ctx.strokeStyle=color;ctx.lineWidth=worldSize(width);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
@@ -329,9 +351,9 @@ function focusPoi(id){const p=pois.find(item=>item.id===id);if(!p||!mapImage)ret
 function buildPoiListHtml(list){if(!list.length)return '<div><strong>Keine POIs vorhanden.</strong></div>';return `<div><strong>${list.length} POI${list.length===1?'':'s'}:</strong><ul class="delete-list">${list.map(p=>`<li>${escapeHtml(p.name)} <span class="notice">(${escapeHtml(p.type)})</span></li>`).join('')}</ul></div>`}
 function clearPois(){if(!pois.length)return;const current=activeMap();openConfirmModal({title:'Alle POIs löschen',message:`Die POIs werden nur von „${current?.name||mapName}“ entfernt. Karte, Maßstab und Messungen bleiben erhalten.`,details:buildPoiListHtml(pois)+'<div class="confirm-warning">Diese Aktion kann nur über ein vorher exportiertes Backup rückgängig gemacht werden.</div>',actionLabel:'Alle POIs löschen',onConfirm:()=>{pois=[];selectedPoiId=null;renderPoiList();draw();scheduleSave(0)}})}
 function renderPoiColorPicker(){const picker=document.getElementById('poiColorPicker');picker.innerHTML=POI_COLORS.map(c=>`<button type="button" class="color-swatch${c.value===poiDraftColor?' selected':''}" data-poi-color="${c.value}" title="${c.name}" aria-label="${c.name}" style="background:${c.value}"></button>`).join('')}
-function openPoiModal(id,isNew){const poi=pois.find(p=>p.id===id);if(!poi)return;editingPoiId=id;poiModalIsNew=Boolean(isNew);poiDraftColor=poi.color||legacyPoiColor(poi.type);document.getElementById('poiModalTitle').textContent=isNew?'POI erstellen':'POI bearbeiten';document.getElementById('poiModalName').value=poi.name||'';document.getElementById('poiModalType').value=POI_TYPES.includes(poi.type)?poi.type:'Sonstiges';document.getElementById('poiModalNote').value=poi.note||'';document.getElementById('poiDeleteButton').style.display=isNew?'none':'inline-block';renderPoiColorPicker();document.getElementById('poiModal').classList.add('open');refreshModalOpenState();setTimeout(()=>document.getElementById('poiModalName').focus(),0)}
+function openPoiModal(id,isNew){const poi=pois.find(p=>p.id===id);if(!poi)return;const coordinates=poiToMapCoordinates(poi);editingPoiId=id;poiModalIsNew=Boolean(isNew);poiDraftColor=poi.color||legacyPoiColor(poi.type);document.getElementById('poiModalTitle').textContent=isNew?'POI erstellen':'POI bearbeiten';document.getElementById('poiModalName').value=poi.name||'';document.getElementById('poiModalType').value=POI_TYPES.includes(poi.type)?poi.type:'Sonstiges';document.getElementById('poiModalCoordX').value=formatMapCoordinate(coordinates.x);document.getElementById('poiModalCoordY').value=formatMapCoordinate(coordinates.y);document.getElementById('poiModalNote').value=poi.note||'';document.getElementById('poiDeleteButton').style.display=isNew?'none':'inline-block';renderPoiColorPicker();document.getElementById('poiModal').classList.add('open');refreshModalOpenState();setTimeout(()=>document.getElementById('poiModalName').focus(),0)}
 function closePoiModal({discardNew=false}={}){if(discardNew&&poiModalIsNew&&editingPoiId){pois=pois.filter(p=>p.id!==editingPoiId);if(selectedPoiId===editingPoiId)selectedPoiId=null;renderPoiList();draw();scheduleSave()}document.getElementById('poiModal').classList.remove('open');editingPoiId=null;poiModalIsNew=false;refreshModalOpenState()}
-function savePoiModal(){const poi=pois.find(p=>p.id===editingPoiId);if(!poi)return;const type=document.getElementById('poiModalType').value;poi.type=POI_TYPES.includes(type)?type:'Sonstiges';poi.name=document.getElementById('poiModalName').value.trim()||`${poi.type} ${pois.indexOf(poi)+1}`;poi.note=document.getElementById('poiModalNote').value.trim();poi.color=poiDraftColor;closePoiModal();renderPoiList();draw();scheduleSave(0)}
+function savePoiModal(){const poi=pois.find(p=>p.id===editingPoiId);if(!poi)return;const type=document.getElementById('poiModalType').value;const previousCoordinates=poiToMapCoordinates(poi);const nextX=parseMapCoordinate(document.getElementById('poiModalCoordX').value,previousCoordinates.x);const nextY=parseMapCoordinate(document.getElementById('poiModalCoordY').value,previousCoordinates.y);poi.type=POI_TYPES.includes(type)?type:'Sonstiges';poi.name=document.getElementById('poiModalName').value.trim()||`${poi.type} ${pois.indexOf(poi)+1}`;poi.note=document.getElementById('poiModalNote').value.trim();poi.color=poiDraftColor;applyMapCoordinatesToPoi(poi,nextX,nextY);closePoiModal();renderPoiList();draw();scheduleSave(0)}
 function deletePoiFromModal(){const poi=pois.find(p=>p.id===editingPoiId);if(!poi)return;const current=activeMap();openConfirmModal({title:'POI löschen',message:`„${poi.name}“ wird von „${current?.name||mapName}“ entfernt.`,details:`<div><strong>Dieser POI wird gelöscht:</strong></div><ul class="delete-list"><li><strong>Name:</strong> ${escapeHtml(poi.name)}</li><li><strong>Typ:</strong> ${escapeHtml(poi.type)}</li>${poi.note?`<li><strong>Notiz:</strong> ${escapeHtml(poi.note)}</li>`:'<li><strong>Notiz:</strong> Keine Notiz hinterlegt.</li>'}</ul><div class="confirm-warning">Diese Aktion kann nur über ein vorher exportiertes Backup rückgängig gemacht werden.</div>`,actionLabel:'POI endgültig löschen',onConfirm:()=>{pois=pois.filter(p=>p.id!==poi.id);if(selectedPoiId===poi.id)selectedPoiId=null;closePoiModal();renderPoiList();draw();scheduleSave(0)}})}
 
 function showCalibrationModal({adjusted=false}={}){recalcCalibration();const result=document.getElementById('calibrationModalResult'),px=calibrationPoints.length===2?Math.round(distancePx(calibrationPoints[0],calibrationPoints[1])):0,title=document.getElementById('calibrationModalTitle'),message=document.getElementById('calibrationModalMessage'),adjustButton=document.getElementById('adjustCalibrationButton');title.textContent=adjusted?'Maßstab angepasst':'Maßstab kalibriert';message.textContent=adjusted?'Die Position der Kalibrierungspunkte wurde geändert. Prüfe den neuen Maßstab und bestätige ihn mit „Übernehmen“.':'Beide Kalibrierungspunkte sind gesetzt. Nach „Übernehmen“ verschwinden sie wieder, damit die Karte sauber bleibt. Über „Punkte anpassen“ kannst du sie jederzeit erneut einblenden.';adjustButton.textContent=adjusted?'Weiter anpassen':'Punkte anpassen';result.textContent=`${formatDistance(getKnownDistance())} entsprechen ${px} Pixeln.`;calibrationAdjustmentPending=true;document.getElementById('calibrationModal').classList.add('open');refreshModalOpenState();setTimeout(()=>document.getElementById('confirmCalibrationButton').focus(),0)}
@@ -355,6 +377,73 @@ function applyRuntimeFromMap(map){mapBlob=map.mapBlob;mapName=map.name;document.
 async function activateMap(id,{skipCapture=false}={}){const map=maps.find(m=>m.id===id);if(!map||!map.mapBlob)return;if(!skipCapture)syncActiveMap();activeMapId=id;applyRuntimeFromMap(map);const token=++mapLoadToken;try{const image=await loadImageFromBlob(map.mapBlob);if(token!==mapLoadToken)return;mapImage=image;canvas.style.display='block';emptyMap.style.display='none';resizeCanvas();if(!Number.isFinite(zoom)||zoom<=0)fitMapToViewport();else{applyCanvasTransform();draw()}renderPoiList();renderMapList();updateStats();scheduleSave(0)}catch(error){console.error(error);openNoticeModal({title:'Karte konnte nicht geladen werden',message:`Die Karte „${map.name}“ konnte nicht geladen werden. Prüfe die Bilddatei oder importiere sie erneut.`})}}
 async function addMapFromFile(file){if(!file)return;syncActiveMap();const map=normalizeMapRecord({id:makeId('map'),name:file.name,mapBlob:file,knownDistance:10,unit:'km',poiLabelVisibility:'show',calibrationPoints:[],measurePoints:[],routePoints:[],pois:[],zoom:1,pan:{x:0,y:0}},maps.length);maps.push(map);renderMapList();await activateMap(map.id,{skipCapture:true});fitMapToViewport();scheduleSave(0)}
 
+function pointCountLabel(count,singular,plural){return `${count} ${count===1?singular:plural}`}
+function openReplaceMapModal(file){
+  const map=activeMap();
+  if(!map||!file){openNoticeModal({title:'Keine aktive Karte',message:'Wähle zuerst eine gespeicherte Karte aus, deren Bild ersetzt werden soll.'});return}
+  syncActiveMap();
+  pendingMapReplacementFile=file;
+  pendingMapReplacementTargetId=map.id;
+  const poiCount=(map.pois||[]).length;
+  const measureCount=(map.measurePoints||[]).length;
+  const routeCount=(map.routePoints||[]).length;
+  const calibrationReady=(map.calibrationPoints||[]).length===2;
+  document.getElementById('replaceMapModalMessage').textContent=`Die neue Bilddatei ersetzt nur die Grafik von „${map.name}“.`;
+  document.getElementById('replaceMapModalDetails').innerHTML=`<div><strong>Bleibt in beiden Varianten erhalten:</strong></div><ul class="delete-list"><li>${pointCountLabel(poiCount,'POI','POIs')} inklusive Namen, Farben, Symbolen und Notizen</li><li>${pointCountLabel(measureCount,'Messpunkt','Messpunkte')} der geraden Strecke</li><li>${pointCountLabel(routeCount,'Routenpunkt','Routenpunkte')}</li></ul><div><strong>„Daten behalten“:</strong> Auch die bestehende Kalibrierung bleibt erhalten.</div><div><strong>„Maßstab zurücksetzen“:</strong> ${calibrationReady?'Die beiden Kalibrierungspunkte und die Entfernungsskala werden entfernt.':'Es ist aktuell kein vollständiger Maßstab gespeichert.'} POIs, Messungen und Route bleiben trotzdem erhalten.</div><div class="confirm-warning">Bei einer anderen Auflösung werden POIs, Messungen und Route proportional mit skaliert; ihre 000–999-Koordinaten bleiben damit erhalten. Bei einem anderen Kartenausschnitt oder verschobenen Inhalten können Positionen trotzdem nicht mehr zur dargestellten Karte passen. Die Kartenansicht wird nach dem Austausch passend zentriert.</div>`;
+  document.getElementById('replaceMapModal').classList.add('open');
+  modalOpen=true;
+}
+function closeReplaceMapModal(){
+  document.getElementById('replaceMapModal').classList.remove('open');
+  pendingMapReplacementFile=null;
+  pendingMapReplacementTargetId=null;
+  modalOpen=false;
+}
+async function replaceActiveMapImage({resetCalibration=false}={}){
+  const file=pendingMapReplacementFile;
+  const targetId=pendingMapReplacementTargetId;
+  const map=maps.find(entry=>entry.id===targetId);
+  if(!file||!map){closeReplaceMapModal();return}
+  try{
+    setStorageStatus('Kartengrafik wird ersetzt …');
+    const oldWidth=Math.max(1,Number(mapImage?.naturalWidth)||1),oldHeight=Math.max(1,Number(mapImage?.naturalHeight)||1);
+    const image=await loadImageFromBlob(file);
+    if(activeMapId!==targetId){throw new Error('Die aktive Karte wurde während des Austauschs geändert.');}
+    map.mapBlob=file;
+    mapBlob=file;
+    mapImage=image;
+    scaleOverlayPositionsForReplacement(oldWidth,oldHeight,image.naturalWidth,image.naturalHeight,{includeCalibration:!resetCalibration});
+    if(resetCalibration){
+      calibrationPoints=[];
+      calibrationScale=null;
+      calibrationAdjustmentPending=false;
+      showCalibrationMarkers=false;
+      map.calibrationPoints=[];
+    }
+    clearSelection();
+    mode=null;
+    pointerAction=null;
+    zoom=1;
+    pan={x:0,y:0};
+    closeReplaceMapModal();
+    canvas.style.display='block';
+    emptyMap.style.display='none';
+    resizeCanvas();
+    fitMapToViewport();
+    renderPoiList();
+    renderMapList();
+    updateStats();
+    scheduleSave(0);
+    setStorageStatus(resetCalibration?'Kartengrafik ersetzt – Maßstab zurückgesetzt':'Kartengrafik ersetzt','good');
+    openNoticeModal({title:'Kartengrafik ersetzt',message:resetCalibration?'Die neue Karte ist aktiv. POIs, Messungen und Route wurden behalten; der Maßstab wurde bewusst entfernt und kann jetzt neu kalibriert werden.':'Die neue Karte ist aktiv. POIs, Messungen, Route und der bisherige Maßstab wurden behalten.'});
+  }catch(error){
+    console.error(error);
+    closeReplaceMapModal();
+    setStorageStatus('Kartengrafik konnte nicht ersetzt werden','bad');
+    openNoticeModal({title:'Kartengrafik konnte nicht ersetzt werden',message:'Die ausgewählte Bilddatei konnte nicht geladen werden. Die bisherige Karte und alle Daten wurden nicht verändert.'});
+  }
+}
+
 function blobToDataUrl(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(reader.error||new Error('Kartenbild konnte nicht exportiert werden.'));reader.readAsDataURL(blob)})}
 function dataUrlToBlob(dataUrl){const match=String(dataUrl||'').match(/^data:([^;,]+)?;base64,(.*)$/s);if(!match)throw new Error('Das Kartenbild im Projektformat ist ungültig.');const binary=atob(match[2]),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new Blob([bytes],{type:match[1]||'image/*'})}
 function safeFileStem(name){const stem=String(name||'kartenprojekt').replace(/\.[^.]+$/,'').replace(/[^a-z0-9äöüß_-]+/gi,'-').replace(/^-+|-+$/g,'');return stem||'kartenprojekt'}
@@ -366,7 +455,9 @@ function importProject(file){if(!file)return;if(!maps.length){void performImport
 async function restoreLibrary(){try{setStorageStatus('Gespeicherte Karten werden geladen …');const saved=await readRecord(LIBRARY_KEY);if(saved?.maps?.length){maps=saved.maps.map(normalizeMapRecord).filter(m=>m.mapBlob);activeMapId=maps.some(m=>m.id===saved.activeMapId)?saved.activeMapId:maps[0]?.id||null;if(activeMapId)await activateMap(activeMapId,{skipCapture:true});else clearRuntimeMap();setStorageStatus('Gespeicherte Karten geladen','good');return}const legacy=await readRecord(LEGACY_KEY);if(legacy?.mapBlob){const migrated=normalizeMapRecord({id:makeId('map'),name:legacy.mapName||'Gespeicherte Karte',mapBlob:legacy.mapBlob,knownDistance:legacy.knownDistance,unit:legacy.unit,poiLabelVisibility:legacy.poiLabelVisibility,calibrationPoints:legacy.calibrationPoints,measurePoints:legacy.measurePoints,routePoints:legacy.routePoints,pois:legacy.pois,zoom:legacy.zoom,pan:legacy.pan},0);maps=[migrated];activeMapId=migrated.id;await activateMap(activeMapId,{skipCapture:true});setStorageStatus('Vorherige Karte übernommen','good');scheduleSave(0);return}maps=[];activeMapId=null;clearRuntimeMap();renderMapList();setStorageStatus('Noch keine Karte gespeichert')}catch(error){storageAvailable=false;setStorageStatus('Gespeicherte Karten konnten nicht geladen werden','bad');console.error(error);renderMapList();clearRuntimeMap()}}
 
 mapInput.addEventListener('change',async event=>{const file=event.target.files?.[0];event.target.value='';await addMapFromFile(file)});
+replaceMapImageInput.addEventListener('change',event=>{const file=event.target.files?.[0];event.target.value='';if(file)openReplaceMapModal(file)});
 document.getElementById('mapAddButton').addEventListener('click',()=>mapInput.click());
+document.getElementById('replaceMapImageButton').addEventListener('click',()=>{if(!activeMap()){openNoticeModal({title:'Keine aktive Karte',message:'Füge zuerst eine Karte hinzu oder wähle eine Karte aus der Bibliothek aus.'});return}replaceMapImageInput.click()});
 document.getElementById('mapList').addEventListener('click',onMapListClick);
 document.getElementById('startCalibrationButton').addEventListener('click',()=>startCalibration());
 document.getElementById('clearCalibrationButton').addEventListener('click',clearCalibration);
@@ -384,6 +475,7 @@ document.getElementById('restartCalibrationButton').addEventListener('click',()=
 document.getElementById('poiSaveButton').addEventListener('click',savePoiModal);
 document.getElementById('poiCancelButton').addEventListener('click',()=>closePoiModal({discardNew:true}));
 document.getElementById('poiDeleteButton').addEventListener('click',deletePoiFromModal);
+['poiModalCoordX','poiModalCoordY'].forEach(id=>document.getElementById(id).addEventListener('input',event=>{event.target.value=event.target.value.replace(/\D/g,'').slice(0,3)}));
 document.getElementById('poiColorPicker').addEventListener('click',event=>{const button=event.target.closest('[data-poi-color]');if(!button)return;poiDraftColor=button.dataset.poiColor;renderPoiColorPicker()});
 document.getElementById('poiList').addEventListener('click',event=>{const focus=event.target.closest('[data-focus-poi]');const edit=event.target.closest('[data-edit-poi]');if(focus)focusPoi(focus.dataset.focusPoi);if(edit)openPoiModal(edit.dataset.editPoi,false)});
 document.getElementById('confirmModalCancelButton').addEventListener('click',closeConfirmModal);
@@ -391,11 +483,14 @@ document.getElementById('noticeModalCloseButton').addEventListener('click',close
 document.getElementById('confirmModalActionButton').addEventListener('click',confirmModalAction);
 document.getElementById('renameMapCancelButton').addEventListener('click',closeRenameMapModal);
 document.getElementById('renameMapSaveButton').addEventListener('click',saveMapRename);
+document.getElementById('replaceMapCancelButton').addEventListener('click',closeReplaceMapModal);
+document.getElementById('replaceMapKeepButton').addEventListener('click',()=>{void replaceActiveMapImage({resetCalibration:false})});
+document.getElementById('replaceMapResetCalibrationButton').addEventListener('click',()=>{void replaceActiveMapImage({resetCalibration:true})});
 document.getElementById('renameMapInput').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();saveMapRename()}});
 ['knownDistanceInput','distanceUnitInput','poiLabelToggle'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',()=>{updateStats();draw();scheduleSave()});el.addEventListener('change',()=>{updateStats();draw();scheduleSave()})});
 viewport.addEventListener('wheel',event=>{if(!mapImage)return;event.preventDefault();zoomAt(event.clientX,event.clientY,zoom*Math.exp(-event.deltaY*.0015))},{passive:false});
 viewport.addEventListener('pointerdown',onViewportPointerDown);viewport.addEventListener('pointermove',onViewportPointerMove);viewport.addEventListener('pointerup',onViewportPointerUp);viewport.addEventListener('pointercancel',onViewportPointerUp);viewport.addEventListener('dblclick',onViewportDoubleClick);viewport.addEventListener('auxclick',event=>event.preventDefault());viewport.addEventListener('contextmenu',event=>event.preventDefault());
-window.addEventListener('keydown',event=>{const tag=document.activeElement?.tagName?.toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select'||document.activeElement?.isContentEditable;if(event.key==='Escape'&&modalOpen){if(document.getElementById('noticeModal').classList.contains('open'))closeNoticeModal();else if(document.getElementById('confirmModal').classList.contains('open'))closeConfirmModal();else if(document.getElementById('poiModal').classList.contains('open'))closePoiModal({discardNew:true});else if(document.getElementById('calibrationModal').classList.contains('open'))closeCalibrationModal();else if(document.getElementById('renameMapModal').classList.contains('open'))closeRenameMapModal();return}if(typing||modalOpen)return;if(event.key==='Escape'){deactivateTool();return}if((event.key==='Delete'||event.key==='Backspace')&&selectedPoint){event.preventDefault();deleteSelectedPoint();return}if(event.key.toLowerCase()==='f'&&mapImage){event.preventDefault();fitMapToViewport()}});
+window.addEventListener('keydown',event=>{const tag=document.activeElement?.tagName?.toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select'||document.activeElement?.isContentEditable;if(event.key==='Escape'&&modalOpen){if(document.getElementById('noticeModal').classList.contains('open'))closeNoticeModal();else if(document.getElementById('confirmModal').classList.contains('open'))closeConfirmModal();else if(document.getElementById('poiModal').classList.contains('open'))closePoiModal({discardNew:true});else if(document.getElementById('calibrationModal').classList.contains('open'))closeCalibrationModal();else if(document.getElementById('renameMapModal').classList.contains('open'))closeRenameMapModal();else if(document.getElementById('replaceMapModal').classList.contains('open'))closeReplaceMapModal();return}if(typing||modalOpen)return;if(event.key==='Escape'){deactivateTool();return}if((event.key==='Delete'||event.key==='Backspace')&&selectedPoint){event.preventDefault();deleteSelectedPoint();return}if(event.key.toLowerCase()==='f'&&mapImage){event.preventDefault();fitMapToViewport()}});
 window.addEventListener('resize',resizeCanvas);if('ResizeObserver' in window){resizeObserver=new ResizeObserver(()=>resizeCanvas());resizeObserver.observe(viewport)}
 
 renderPoiList();renderMapList();resizeCanvas();updateStats();restoreLibrary();
